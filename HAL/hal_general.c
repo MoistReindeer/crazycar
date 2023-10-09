@@ -4,6 +4,8 @@
 #include "HAL/hal_gpio.h"
 #include <msp430.h>
 
+ButtonCom BUTTONCOM;
+
 void HAL_Init(void) {
     HAL_Wdt_Init();
     HAL_PMM_Init();

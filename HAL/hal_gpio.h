@@ -2,6 +2,11 @@
 #define _HAL_GPIO_H_
 #include <msp430.h>
 
+typedef struct {
+    unsigned char active; // TRUE 1 / FALSE 0
+    unsigned char button; // Button number
+} ButtonCom;
+
 // ### Port 1 ###
 #define RPM_SENSOR          BIT3
 #define RPM_SENSOR_DIR      BIT4

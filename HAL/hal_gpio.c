@@ -1,6 +1,8 @@
 #include "HAL/hal_gpio.h"
 #include <msp430.h>
 
+extern ButtonCom BUTTONCOM;
+
 void HAL_GPIO_Init(void) {
     // ### Port 1 Default ###
     P1DIR = 0x00;
@@ -50,4 +52,18 @@ void HAL_GPIO_Init(void) {
     // ### Custom Definitions ###
     // LCD Backlight
     P8DIR |= LCD_BL;
+
+    // Stop Button
+    P1DIR &= ~BIT7;
+    P1OUT |= BIT7;
+    P1IE |= BIT7;
+    P1IES |= BIT7;
+
+    // Start Button
+    P1DIR &= ~BIT6;
+    P1OUT |= BIT6;
+    P1IE |= BIT6;
+    P1IES |= BIT6;
+
+    __enable_interrupt();
 }

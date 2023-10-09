@@ -2,6 +2,13 @@
 #include <HAL/hal_general.h>
 #include <HAL/hal_gpio.h>
 
+#pragma vector=PORT1_VECTOR
+__interrupt void BTN_START_ISR(void) {
+    return 0;
+}
+
+extern ButtonCom BUTTONCOM;
+
 /**
  * main.c
  */
