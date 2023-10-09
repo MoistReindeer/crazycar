@@ -59,6 +59,9 @@
 #define LCD_RESET           BIT0
 #define DISTANCE_RIGHT_EN   BIT7
 
+#define LCD_BACKLIGHT_ON (P8OUT |= LCD_BL)
+#define LCD_BACKLIGHT_OFF (P8OUT &= ~LCD_BL)
+
 void HAL_GPIO_Init(void);
 
 #endif /*_HAL_GPIO_H_*/
