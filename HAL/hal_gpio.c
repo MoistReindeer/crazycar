@@ -65,6 +65,14 @@ void HAL_GPIO_Init(void) {
     P1IE |= BIT6;
     P1IES |= BIT6;
 
+    // Konfigurieren der Clock, XT2-Pins
+    P2SEL |= BIT2;
+    UCSCTL6 &= ~XT2BYPASS;
+
+    // SMCLK-Output Messung
+    P3DIR |= BIT4;
+    P3SEL |= BIT4;
+
     __enable_interrupt();
 }
 

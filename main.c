@@ -1,6 +1,7 @@
 #include <msp430.h> 
 #include <HAL/hal_general.h>
 #include <HAL/hal_gpio.h>
+#include <HAL/hal_pmm.h>
 
 extern ButtonCom BUTTONCOM;
 
