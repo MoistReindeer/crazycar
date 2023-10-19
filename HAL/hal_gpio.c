@@ -93,3 +93,8 @@ __interrupt void P1_ISR(void) {
             P1IFG = 0x00;
     }
 }
+
+#pragma vector = TIMERB0_VECTOR
+__interrupt void TimerB0(void) {
+
+}

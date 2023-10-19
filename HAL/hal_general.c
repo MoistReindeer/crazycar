@@ -10,4 +10,5 @@ void HAL_Init(void) {
     HAL_Wdt_Init();
     HAL_PMM_Init();
     HAL_GPIO_Init();
+    HAL_TimerB0_Init();
 }
