@@ -2,11 +2,6 @@
 #include <HAL/hal_general.h>
 #include <HAL/hal_gpio.h>
 
-#pragma vector=PORT1_VECTOR
-__interrupt void BTN_START_ISR(void) {
-    return 0;
-}
-
 extern ButtonCom BUTTONCOM;
 
 /**
@@ -14,19 +9,17 @@ extern ButtonCom BUTTONCOM;
  */
 void main(void)
 {
-    float f_erg;
-    int i_erg;
-
     HAL_Init();
 	
 	while (1)
 	{
-	    // Floating-point Test - 10.9µs
-	    LCD_BACKLIGHT_ON;
-	    f_erg = 4.978f*2.673489f;
-
-	    // Integer Test - 8.2µs
-        LCD_BACKLIGHT_OFF;
-        i_erg = 4*2;
+	    if (BUTTONCOM.active == 1) {
+	        if (BUTTONCOM.button == 0) {
+	            LCD_BACKLIGHT_ON;
+	        } else if (BUTTONCOM.button == 1){
+	            LCD_BACKLIGHT_OFF;
+	        }
+	        BUTTONCOM.active = 0;
+	    }
 	}
 }

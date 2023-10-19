@@ -67,3 +67,21 @@ void HAL_GPIO_Init(void) {
 
     __enable_interrupt();
 }
+
+#pragma vector=PORT1_VECTOR
+__interrupt void P1_ISR(void) {
+    switch (P1IFG) {
+    case START_BUTTON:
+            BUTTONCOM.active = 1;
+            BUTTONCOM.button = 0;
+            P1IFG &= ~START_BUTTON;
+            break;
+    case STOP_BUTTON:
+            BUTTONCOM.active = 1;
+            BUTTONCOM.button = 1;
+            P1IFG &= ~STOP_BUTTON;
+            break;
+    default:
+            P1IFG = 0x00;
+    }
+}
