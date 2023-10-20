@@ -1,4 +1,5 @@
 #include <msp430.h>
+#include "hal/hal_ucs.h"
 #include "hal/hal_timerB0.h"
 
 #define T_FREQ 2

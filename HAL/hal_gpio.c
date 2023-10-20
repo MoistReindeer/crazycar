@@ -66,12 +66,19 @@ void HAL_GPIO_Init(void) {
     P1IES |= BIT6;
 
     // Konfigurieren der Clock, XT2-Pins
-    P2SEL |= BIT2;
+    P7SEL |= BIT2;
+    P7SEL |= BIT3;
     UCSCTL6 &= ~XT2BYPASS;
 
     // SMCLK-Output Messung
     P3DIR |= BIT4;
     P3SEL |= BIT4;
+
+    // Steering & Throttle
+    P3DIR |= THROTTLE;
+    P3DIR |= STEERING;
+    P3SEL |= THROTTLE;
+    P3SEL |= STEERING;
 
     __enable_interrupt();
 }
