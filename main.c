@@ -2,6 +2,7 @@
 #include <HAL/hal_general.h>
 #include <HAL/hal_gpio.h>
 #include <HAL/hal_pmm.h>
+#include <DL/driver_general.h>
 
 extern ButtonCom BUTTONCOM;
 
@@ -11,6 +12,7 @@ extern ButtonCom BUTTONCOM;
 void main(void)
 {
     HAL_Init();
+    Driver_Init();
 	
 	while (1)
 	{

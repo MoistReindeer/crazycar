@@ -54,7 +54,7 @@ void HAL_GPIO_Init(void) {
     P8DIR |= LCD_BL;
 
     // Stop Button
-    P1DIR &= ~BIT7;
+    P1DIR &= ~BIT7; // TODO: makros statt BIT definition verwenden
     P1OUT |= BIT7;
     P1IE |= BIT7;
     P1IES |= BIT7;
@@ -86,7 +86,7 @@ void HAL_GPIO_Init(void) {
 #pragma vector=PORT1_VECTOR
 __interrupt void P1_ISR(void) {
     switch (P1IFG) {
-    case START_BUTTON:
+    case START_BUTTON: // TODO - Buttons mit 'P1IFG &' maskieren
             BUTTONCOM.active = 1;
             BUTTONCOM.button = 0;
             P1IFG &= ~START_BUTTON;
