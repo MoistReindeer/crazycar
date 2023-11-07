@@ -5,9 +5,13 @@
 #include "HAL/hal_ucs.h"
 #include "HAL/hal_timerA1.h"
 #include "HAL/hal_timerB0.h"
+#include "HAL/hal_usciB1.h"
+#include <DL/driver_aktorik.h>
+#include <DL/driver_general.h>
 #include <msp430.h>
 
 ButtonCom BUTTONCOM;
+USCIB1_SPICom SPICom;
 
 void HAL_Init(void) {
     HAL_Wdt_Init();

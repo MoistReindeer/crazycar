@@ -5,5 +5,6 @@ void Driver_SetSteering(int steer);
 void Driver_SteeringInit(void);
 void Driver_SetThrottle(int throttle);
 void Driver_ESCInit(void);
+void createPulses(int pwm, int pulseDuration);
 
 #endif /*_DRIVER_AKTUATOR_H_*/

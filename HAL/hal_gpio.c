@@ -50,8 +50,6 @@ void HAL_GPIO_Init(void) {
     P9OUT = 0x00;
 
     // ### Custom Definitions ###
-    // LCD Backlight
-    P8DIR |= LCD_BL;
 
     // Stop Button
     P1DIR &= ~BIT7; // TODO: makros statt BIT definition verwenden
@@ -79,6 +77,17 @@ void HAL_GPIO_Init(void) {
     P3DIR |= STEERING;
     P3SEL |= THROTTLE;
     P3SEL |= STEERING;
+
+    // SPI Configuration
+    P8DIR |= LCD_BL; // LCD Backlight
+    P8DIR |= LCD_SPI_CS;
+    P8DIR |= LCD_SPI_CLK;
+    P8SEL |= LCD_SPI_CLK;
+    P8DIR |= LCD_SPI_MOSI;
+    P8SEL |= LCD_SPI_MOSI;
+    P8DIR &= ~LCD_SPI_MISO;
+    P8SEL |= LCD_SPI_MISO;
+    P8DIR |= LCD_DATACMD; // IO-Port als Ausgang
 
     __enable_interrupt();
 }
