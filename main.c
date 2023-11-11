@@ -17,11 +17,11 @@ void main(void)
     HAL_USCIB1_Init();
     SPICom.TxData.Data[0] = 'a';
     SPICom.TxData.Data[1] = 'b';
-    // Driver_Init();
+    Driver_Init();
 	
 	while (1)
 	{
-	    HAL_USCIB1_Transmit();
+	    HAL_USCIB1_Transmit('2');
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
 	            LCD_BACKLIGHT_ON;

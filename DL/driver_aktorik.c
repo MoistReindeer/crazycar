@@ -20,7 +20,7 @@ void Driver_SetSteering(int steer) { // Rechts-Links lenken
     }
 }
 
-void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25µs*/
+void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25ï¿½s*/
     if (throttle >= 100) {
         TA1CCR1 = 10000;
     } else if (throttle <= -100) {
@@ -35,13 +35,13 @@ void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25µs*/
 }
 
 void Driver_ESCInit(void) {
-    createPulses(MAX_RPW,131);
-    createPulses(MIN_RPW,128);
+    createPulses(MAX_RPW,150);
+    createPulses(MIN_RPW,150);
 
-    createPulses(MIN_FPW,128);
-    createPulses(MAX_FPW,128);
+    createPulses(MIN_FPW,150);
+    createPulses(MAX_FPW,150);
 
-    createPulses(MAX_BREAK, 30);
+    createPulses(MAX_BREAK, 50);
 }
 
 void createPulses(int pwm, int pulseDuration)
