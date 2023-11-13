@@ -22,15 +22,15 @@ void Driver_SetSteering(int steer) { // Rechts-Links lenken
 
 void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25�s*/
     if (throttle >= 100) {
-        TA1CCR1 = 10000;
+        TA1CCR1 = MAX_FPW;
     } else if (throttle <= -100) {
-        TA1CCR1 = 2500;
+        TA1CCR1 = MAX_RPW;
     } else if (throttle > 0) {
-        TA1CCR1 = 7500 + 25*throttle;
+        TA1CCR1 = MIN_FPW + 25*throttle;
     } else if (throttle < 0) {
-        TA1CCR1 = 5000 - 25*throttle;
-    } else if (throttle == 0) {
-        TA1CCR1 = 6250;
+        TA1CCR1 = MIN_RPW - 25*throttle;
+    } else {
+        TA1CCR1 = MAX_BREAK;
     }
 }
 
