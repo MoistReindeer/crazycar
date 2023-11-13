@@ -3,6 +3,9 @@
 
 #define UCLK 100000
 
+#define LCD_CS_LOW  P8OUT&= ~LCD_SPI_CS;
+#define LCD_CS_HIGH  P8OUT|= LCD_SPI_CS;
+
 typedef struct {
     struct{
         unsigned char TxSuc; // Bit=1 wenn Daten �bertragen wurden
