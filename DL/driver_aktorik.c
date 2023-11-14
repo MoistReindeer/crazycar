@@ -35,13 +35,13 @@ void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25�s
 }
 
 void Driver_ESCInit(void) {
-    createPulses(MAX_RPW,150);
-    createPulses(MIN_RPW,150);
+    createPulses(MAX_RPW,250);
+    createPulses(MIN_RPW,250);
 
-    createPulses(MIN_FPW,150);
-    createPulses(MAX_FPW,150);
+    createPulses(MIN_FPW,250);
+    createPulses(MAX_FPW,250);
 
-    createPulses(MAX_BREAK, 50);
+    createPulses(MAX_BREAK, 150);
 }
 
 void createPulses(int pwm, int pulseDuration)
