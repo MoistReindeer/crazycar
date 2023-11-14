@@ -81,11 +81,12 @@ void HAL_GPIO_Init(void) {
     // SPI Configuration
     P8DIR |= LCD_BL; // LCD Backlight
     P8DIR |= LCD_SPI_CS;
+    P8OUT |= LCD_SPI_CS;
     P8DIR |= LCD_SPI_CLK;
     P8SEL |= LCD_SPI_CLK;
     P8DIR |= LCD_SPI_MOSI;
     P8SEL |= LCD_SPI_MOSI;
-    P8DIR &= ~LCD_SPI_MISO;
+    P8DIR |= LCD_SPI_MISO;
     P8SEL |= LCD_SPI_MISO;
     P8DIR |= LCD_DATACMD; // IO-Port als Ausgang
 
