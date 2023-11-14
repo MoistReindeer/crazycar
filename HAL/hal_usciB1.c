@@ -28,7 +28,7 @@ void HAL_USCIB1_Transmit(unsigned char len) {
 
     while(UCB1STAT & UCBUSY);
 
-    UCB1TXBUF = SPICom.TxData.Data[LCD.TxData.cnt++];
+    UCB1TXBUF = SPICom.TxData.Data[SPICom.TxData.cnt++];
     LCD_CS_LOW;
 }
 
