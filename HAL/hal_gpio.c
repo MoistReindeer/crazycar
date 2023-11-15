@@ -89,6 +89,7 @@ void HAL_GPIO_Init(void) {
     P8DIR |= LCD_SPI_MISO;
     P8SEL |= LCD_SPI_MISO;
     P8DIR |= LCD_DATACMD; // IO-Port als Ausgang
+    P9DIR |= LCD_RESET;
 
     __enable_interrupt();
 }
