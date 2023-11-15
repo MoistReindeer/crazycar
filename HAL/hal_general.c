@@ -20,5 +20,4 @@ void HAL_Init(void) {
     HAL_UCS_Init();
     HAL_TimerA1_Init();
     HAL_TimerB0_Init();
-    Driver_SteeringInit();
 }

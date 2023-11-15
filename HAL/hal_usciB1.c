@@ -21,15 +21,14 @@ void HAL_USCIB1_Init(void) {
 }
 
 void HAL_USCIB1_Transmit(unsigned char len) {
+    while(SPICom.Status.TxSuc == 0);
+
     SPICom.TxData.len = len;
     SPICom.TxData.cnt = 0;
     SPICom.Status.TxSuc = 0;
     SPICom.RxData.len = 0;
 
-    while(UCB1STAT & UCBUSY);
-
     UCB1TXBUF = SPICom.TxData.Data[0];
-    SPICom.TxData.cnt++;
     LCD_CS_LOW;
 }
 
@@ -38,7 +37,7 @@ __interrupt void rx_ISR(void) {
     switch(UCB1IFG) {
         case UCRXIFG:
             SPICom.RxData.Data[SPICom.TxData.cnt++] = UCB1RXBUF;
-            if(SPICom.TxData.cnt <= SPICom.TxData.len) {
+            if(SPICom.TxData.cnt < SPICom.TxData.len) {
                 LCD_CS_LOW;
                 UCB1TXBUF = SPICom.TxData.Data[SPICom.TxData.cnt];
             } else {
