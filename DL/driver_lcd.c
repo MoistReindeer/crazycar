@@ -89,8 +89,15 @@ void Driver_LCD_WriteText(unsigned char *text, unsigned char len, unsigned char 
     LCD_DATA;
 
     for(j=0x00; j < len; j++) {
+        if (col + fonts_width_max >= LCD_MAX_COLM) {
+            Driver_LCD_SetPosition(page++, 0);
+            col = 0;
+            while(SPICom.Status.TxSuc == 0);
+            LCD_DATA;
+        }
         for(i=0x00; i < fonts_width_max; i++) {
             SPICom.TxData.Data[i] = font_table[*text][i];
+            col++;
         }
         HAL_USCIB1_Transmit(fonts_width_max);
         while(SPICom.Status.TxSuc == 0);
@@ -105,14 +112,14 @@ void Driver_LCD_WriteUInt(unsigned int num, unsigned char page, unsigned char co
     while(SPICom.Status.TxSuc == 0); // Wait for previous transmission to finish
     LCD_DATA;
 
-    for(j = 0; j < DIGITS; j++) {
+    for (j = 0; j < DIGITS; j++) {       // Clean the string array
         str[j] = 0x00;
     }
 
     i = 4;
-    do {
+    do {                                // Convert the numbers to string
         rem = num % 10;
-        str[i] = rem + '0';
+        str[i] = rem + '0';             // Add the 0-Offset
         num /= 10;
         i--;
     } while (num != 0); // TODO - Clean leading empty space
@@ -133,5 +140,8 @@ void Driver_LCD_Test() {
     Driver_LCD_Clear();
 
     Driver_LCD_WriteUInt(1234,0,0);
+    Driver_LCD_Clear();
 
+    Driver_LCD_WriteText("Hello World Hello World Hello World Hello World Hello World Hello World", 71, 0, 0);
+    Driver_LCD_Clear();
 }
