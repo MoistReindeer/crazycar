@@ -25,6 +25,8 @@
 #define ALL_POINTS_ON 0xA5
 #define ALL_POINTS_OFF 0xA4
 
+#define DIGITS 5
+
 void Driver_LCD_Init(void);
 void Driver_LCD_SetPosition(unsigned char page, unsigned char col);
 void Driver_LCD_Clear(void);

@@ -100,7 +100,24 @@ void Driver_LCD_WriteText(unsigned char *text, unsigned char len, unsigned char 
 }
 
 void Driver_LCD_WriteUInt(unsigned int num, unsigned char page, unsigned char col) {
+    unsigned char i, j, str[DIGITS], rem;
+    Driver_LCD_SetPosition(page, col);
+    while(SPICom.Status.TxSuc == 0); // Wait for previous transmission to finish
+    LCD_DATA;
 
+    for(j = 0; j < DIGITS; j++) {
+        str[j] = 0x00;
+    }
+
+    i = 4;
+    do {
+        rem = num % 10;
+        str[i] = rem + '0';
+        num /= 10;
+        i--;
+    } while (num != 0); // TODO - Clean leading empty space
+
+    Driver_LCD_WriteText(str,DIGITS,page,col);
 }
 
 void Driver_LCD_Test() {
@@ -114,5 +131,7 @@ void Driver_LCD_Test() {
 
     Driver_LCD_WriteText("test", 4, 3, 18);
     Driver_LCD_Clear();
+
+    Driver_LCD_WriteUInt(1234,0,0);
 
 }
