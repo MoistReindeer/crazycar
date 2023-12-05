@@ -142,6 +142,6 @@ void Driver_LCD_Test() {
     Driver_LCD_WriteUInt(1234,0,0);
     Driver_LCD_Clear();
 
-    Driver_LCD_WriteText("Hello World Hello World Hello World Hello World Hello World Hello World", 71, 0, 0);
+    Driver_LCD_WriteText("This is a sentence to write some text to the lcd because why not", 64, 0, 0);
     Driver_LCD_Clear();
 }

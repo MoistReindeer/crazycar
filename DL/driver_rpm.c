@@ -3,13 +3,14 @@
 #include <HAL/hal_gpio.h>
 #include <HAL/hal_ucs.h>
 
-extern int RPM_DISTANCE;
+extern unsigned int RPM_DISTANCE;
 int rpm_cnt;
 
 void RPM_Count_Init(void) { // Init the RPM_Counter @ Timer A0
     TA0CTL |= TASSEL__SMCLK;    // Set the input CLK to Submaster
     TA0CTL |= MC__UP;           // Set the timer to UP-Mode
     TA0CTL |= ID_2;             // Divide by 4
+    TA0EX0 |= TAIDEX_4;
 
     TA0CCTL0 |= CCIE;
 
@@ -33,7 +34,7 @@ __interrupt void RPM_CNT (void) {
 }
 
 #pragma vector=TIMER0_A0_VECTOR;
-__interrupt void RPM_CALC (void) {
+__interrupt void RPM_MEAS (void) {
     RPM_DISTANCE = rpm_cnt * 5;
     rpm_cnt=0;
     TA0CTL &= ~TAIFG;

@@ -1,7 +1,7 @@
 #ifndef __DRIVER_RPM_H__
 #define __DRIVER_RPM_H__
 
-int RPM_DISTANCE;
+unsigned int RPM_DISTANCE;
 
 void RPM_Count_Init(void);
 
