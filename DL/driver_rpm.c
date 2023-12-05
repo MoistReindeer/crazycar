@@ -21,7 +21,7 @@ void RPM_Count_Init(void) { // Init the RPM_Counter @ Timer A0
     TA0CCTL2 |= CCIS_0;         // Set capture compare input to CCI2A
     TA0CCTL2 |= CCIE;           // Enable interrupts for this control register
 
-    TA0CCR0 = 62500;            // Measurement periode of 100ms
+    TA0CCR0 = 62500;            // Measurement periode of 500ms
     rpm_cnt = 0;
 }
 
