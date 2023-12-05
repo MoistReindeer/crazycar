@@ -78,6 +78,11 @@ void HAL_GPIO_Init(void) {
     P3SEL |= THROTTLE;
     P3SEL |= STEERING;
 
+    // RPM Sensor
+    P1SEL |= RPM_SENSOR;
+    P1DIR &= ~RPM_SENSOR;
+    P1DIR &= ~RPM_SENSOR_DIR;
+
     // SPI Configuration
     P8DIR |= LCD_BL; // LCD Backlight
     P8DIR |= LCD_SPI_CS;

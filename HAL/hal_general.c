@@ -8,6 +8,7 @@
 #include "HAL/hal_usciB1.h"
 #include <DL/driver_aktorik.h>
 #include <DL/driver_general.h>
+#include <DL/driver_rpm.h>
 #include <msp430.h>
 
 ButtonCom BUTTONCOM;
@@ -21,4 +22,5 @@ void HAL_Init(void) {
     HAL_TimerA1_Init();
     HAL_TimerB0_Init();
     Driver_SteeringInit();
+    RPM_Count_Init();
 }
