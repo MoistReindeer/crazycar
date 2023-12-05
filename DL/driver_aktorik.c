@@ -35,13 +35,13 @@ void Driver_SetThrottle(int throttle) { /* Beschleunigen/Bremsen pro step 25�s
 }
 
 void Driver_ESCInit(void) {
-    createPulses(MAX_RPW,250);
-    createPulses(MIN_RPW,250);
+    createPulses(MAX_RPW,140);
+    createPulses(MIN_RPW,140);
 
-    createPulses(MIN_FPW,250);
-    createPulses(MAX_FPW,250);
+    createPulses(MIN_FPW,140);
+    createPulses(MAX_FPW,140);
 
-    createPulses(MAX_BREAK, 150);
+    createPulses(MAX_BREAK, 60);
 }
 
 void createPulses(int pwm, int pulseDuration)
@@ -54,9 +54,8 @@ void createPulses(int pwm, int pulseDuration)
     }
 }
 
-# pragma vector = TIMER1_A1_VECTOR; // pending , when TA1R counts to
+# pragma vector = TIMER1_A0_VECTOR; // pending , when TA1R counts to
 __interrupt void TimerA (void)
 {
     speed_controller_impuls ++;
-    TA1IV = 0x00;
 }

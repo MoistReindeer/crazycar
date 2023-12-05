@@ -4,6 +4,7 @@
 #include <HAL/hal_pmm.h>
 #include <DL/driver_general.h>
 #include "HAL/hal_usciB1.h"
+#include <DL/driver_lcd.h>
 
 extern ButtonCom BUTTONCOM;
 extern USCIB1_SPICom SPICom;
@@ -15,13 +16,13 @@ void main(void)
 {
     HAL_Init();
     HAL_USCIB1_Init();
-    SPICom.TxData.Data[0] = 'a';
-    SPICom.TxData.Data[1] = 'b';
     Driver_Init();
-    HAL_USCIB1_Transmit('2');
-	
+
+    Driver_LCD_Test();
+
 	while (1)
 	{
+	    //HAL_USCIB1_Transmit(2);
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
 	            LCD_BACKLIGHT_ON;
