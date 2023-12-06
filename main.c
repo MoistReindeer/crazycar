@@ -20,7 +20,7 @@ void main(void)
     HAL_USCIB1_Init();
     Driver_Init();
 
-    //Driver_LCD_Test();
+    Driver_LCD_Test();
 
 	while (1)
 	{
