@@ -5,6 +5,7 @@
 
 extern unsigned int RPM_DISTANCE;
 int rpm_cnt;
+int velocity_dd;
 
 void RPM_Count_Init(void) { // Init the RPM_Counter @ Timer A0
     TA0CTL |= TASSEL__SMCLK;    // Set the input CLK to Submaster
@@ -17,11 +18,11 @@ void RPM_Count_Init(void) { // Init the RPM_Counter @ Timer A0
     // Timer 2
     TA0CCTL2 |= CAP;            // Enable capture mode
     TA0CCTL2 |= SCS;            // Synchronise to next clk signal
-    TA0CCTL2 |= CM_1;           // Capture on rising edge
+    TA0CCTL2 |= CM_3;           // Capture on rising edge
     TA0CCTL2 |= CCIS_0;         // Set capture compare input to CCI2A
     TA0CCTL2 |= CCIE;           // Enable interrupts for this control register
 
-    TA0CCR0 = 62500;            // Measurement periode of 500ms
+    TA0CCR0 = TA0_DIV*TA0_HZ;            // Measurement periode of 500ms
     rpm_cnt = 0;
 }
 
@@ -35,7 +36,8 @@ __interrupt void RPM_CNT (void) {
 
 #pragma vector=TIMER0_A0_VECTOR;
 __interrupt void RPM_MEAS (void) {
-    RPM_DISTANCE = rpm_cnt * 5;
+    int velocity = (rpm_cnt * 5 * TA0_HZ) + velocity_dd;
+    velocity_dd = velocity;
     rpm_cnt=0;
     TA0CTL &= ~TAIFG;
 }
