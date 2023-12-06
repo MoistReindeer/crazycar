@@ -90,7 +90,7 @@ void Driver_LCD_WriteText(unsigned char *text, unsigned char len, unsigned char 
 
     for(j=0x00; j < len; j++) {
         if (col + fonts_width_max >= LCD_MAX_COLM) {
-            Driver_LCD_SetPosition(page++, 0);
+            Driver_LCD_SetPosition(++page, 0);
             col = 0;
             while(SPICom.Status.TxSuc == 0);
             LCD_DATA;
