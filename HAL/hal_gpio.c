@@ -96,6 +96,12 @@ void HAL_GPIO_Init(void) {
     P8DIR |= LCD_DATACMD; // IO-Port als Ausgang
     P9DIR |= LCD_RESET;
 
+    // ADC Configuration
+    P6SEL |= DISTANCE_RIGHT;
+    P6SEL |= DISTANCE_LEFT;
+    P6SEL |= DISTANCE_FRONT;
+    P6SEL |= VBAT_MEASURE;
+
     __enable_interrupt();
 }
 
