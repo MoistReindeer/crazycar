@@ -9,6 +9,7 @@
 #include <DL/driver_aktorik.h>
 #include <DL/driver_general.h>
 #include <DL/driver_rpm.h>
+#include <HAL/hal_adc12.h>
 #include <msp430.h>
 
 ButtonCom BUTTONCOM;
@@ -23,4 +24,5 @@ void HAL_Init(void) {
     HAL_TimerB0_Init();
     Driver_SteeringInit();
     RPM_Count_Init();
+    HAL_ADC_Init();
 }
