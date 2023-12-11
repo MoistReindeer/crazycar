@@ -10,6 +10,7 @@
 #include <DL/driver_general.h>
 #include <DL/driver_rpm.h>
 #include <HAL/hal_adc12.h>
+#include <HAL/hal_dma.h>
 #include <msp430.h>
 
 ButtonCom BUTTONCOM;
@@ -25,4 +26,5 @@ void HAL_Init(void) {
     Driver_SteeringInit();
     RPM_Count_Init();
     HAL_ADC_Init();
+    HAL_DMA_Init();
 }

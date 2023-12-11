@@ -33,15 +33,17 @@ void HAL_ADC_Init(void) {
     ADC12MCTL2 |= ADC12INCH_2;
     ADC12MCTL3 |= ADC12INCH_3;
 
+    /*
     ADC12IE |= ADC12IE0;            // Enables interrupt for interrupt 0
     ADC12IE |= ADC12IE1;
     ADC12IE |= ADC12IE2;
-    ADC12IE |= ADC12IE3;
+    ADC12IE |= ADC12IE3;*/
 
     ADC12CTL0 |= ADC12ON;           // ADC on
     ADC12CTL0 |= ADC12ENC;          // ADC aktivieren
 }
 
+/*
 #pragma vector=ADC12_VECTOR
 __interrupt void ADC_ISR(void) {
     switch (ADC12IV) {
@@ -62,4 +64,4 @@ __interrupt void ADC_ISR(void) {
         ADC12Data.Status.B.ADCrdy = 1;
         break;
     }
-}
+}*/
