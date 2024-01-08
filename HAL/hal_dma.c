@@ -11,8 +11,8 @@ void HAL_DMA_Init(void) {
     DMA0CTL |= DMASRCINCR_3;    // Increments src address
     DMA0CTL |= DMAIE;           // Enable DMA interrupt
 
-    DMA0SA = &ADC12MEM0;
-    DMA0DA = &ADC12Data.ADCBuffer[0];
+    DMA0SA = &ADC12MEM0;        // Sets the source address to the ADC12 Memory
+    DMA0DA = &ADC12Data.ADCBuffer[0];   // Sets the destination address to the Buffer Variable
     DMA0SZ = 4;
 
     DMA0CTL |= DMAEN;           // Enable DMA
