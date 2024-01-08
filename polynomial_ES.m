@@ -1,17 +1,19 @@
 % CREATE A FINE POLYNOME 
 clc; clear all; hold off; close all;
 
-table_size = 4096;
+table_size = 512;
 lut_factor = 4096 / table_size;
 sensorOutput = [2.75 2.55 2 1.55 1.25 1.05 0.9 0.8 0.725 0.65 0.6 0.55 0.5 0.495 0.49];        % Just an initial characteristic curve of the infrared sensor
 ADCchange = 4096 / max(2.75);
-adcOutput_front = [4095 3833 3378 2940 2521 2197 1918 1735 1562 1402 1315 1207 1117,...
-    1062 979 922 867 812 786 720 693 635 579 541 495 463]./lut_factor;                         % MEASURED ADC Values of your measured distances
+%adcOutput_front = [4095 3833 3378 2940 2521 2197 1918 1735 1562 1402 1315 1207 1117,...
+%    1062 979 922 867 812 786 720 693 635 579 541 495 463]./lut_factor;                         % MEASURED ADC Values of your measured distances
 
-relatedDistance_mm_front = [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150] * 10; % HERE you could store your measured distance values
+% adcOutput_front = [4067 3730 3363 2958 2582 2262 2002 1813 1646 1508 1401 1296 1230 1151 1088 1039 979 933 901 866 811 779 727 667 642 618 552 530 528]
+adcOutput_front = [4040 3731 3363 2961 2556 2239 2001 1784 1620 1515 1381 1290 1230 1145 1090 1006 956 927 869 841 810 729 697 638 585 560 529 505 470]
+relatedDistance_mm_front = [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180] * 10; % HERE you could store your measured distance values
 
 
-[p_front,s_front] = polyfit(adcOutput_front, relatedDistance_mm_front, 2);          % Fits a polynom of order-n to your input values 
+[p_front,s_front] = polyfit(adcOutput_front, relatedDistance_mm_front, 8);          % Fits a polynom of order-n to your input values 
 x_front = linspace(0,floor(max(adcOutput_front)),table_size);                       % Just create ADC Values in order to plot the results of the polynome
 
 f_front = floor(polyval(p_front,x_front));                                          % Calculates your results, taking into account the measured values and the already stored polynome
