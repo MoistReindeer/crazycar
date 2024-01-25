@@ -7,7 +7,7 @@
 #include <DL/driver_lcd.h>
 #include <DL/driver_rpm.h>
 #include <HAL/hal_adc12.h>
-#include <DL/driver_conversion.h>
+#include <AL/al_conv.h>
 
 #define AVG 32
 
@@ -30,26 +30,12 @@ void main(void)
 
 	while (1)
 	{
-	    Driver_LCD_WriteUInt((int)(RPM_DISTANCE/0.5), 4, 0);
 	    if (ADC12Data.Status.B.ADCrdy == 1 && BUTTONCOM.active == 1) {
-	        /* int i;
-	        for(i = 0; i < 4; i++) {
-	            LCD_BACKLIGHT_OFF;
-	            unsigned long buff = 0;
-	            int j;
-	            for(j = 0; j < AVG; j++) {
-	                while(ADC12Data.Status.B.ADCrdy == 0);
-	                buff += ADC12Data.ADCBuffer[i];
-	                ADC12Data.Status.B.ADCrdy = 0;
-	            }
-	            Driver_LCD_WriteUInt(buff/AVG, i, 0);
-	        }
-            ADC12Data.Status.B.ADCrdy = 0;
-            BUTTONCOM.active = 0;
-            LCD_BACKLIGHT_ON; */
-	        Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
-	        Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
-	        Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
+	        Fetch_Distance();
+            Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
+            Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
+            Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
+            Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {

@@ -17,10 +17,11 @@ relatedDistance_mm = [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 
 [p_front,s_front] = polyfit(adcOutput_front, relatedDistance_mm, 8);          % Fits a polynom of order-n to your input values
 x_front = linspace(0,floor(max(adcOutput_front)),table_size);                       % Just create ADC Values in order to plot the results of the polynome
 
-[p_right,s_right] = polyfit(adcOutput_right, relatedDistance_mm, 4);
+[p_right,s_right] = polyfit(adcOutput_right(1:14), relatedDistance_mm(1:14), 6);
 x_right = linspace(0,floor(max(adcOutput_right)),table_size);
 
-[p_left,s_left] = polyfit(adcOutput_left, relatedDistance_mm, 4);
+%[p_left,s_left] = polyfit(adcOutput_left, relatedDistance_mm, 4);
+[p_left,s_left] = polyfit(adcOutput_left(1:14), relatedDistance_mm(1:14), 6);
 x_left = linspace(0,floor(max(adcOutput_left)),table_size);
 
 f_front = floor(polyval(p_front,x_front));                                          % Calculates your results, taking into account the measured values and the already stored polynome
@@ -32,6 +33,10 @@ f_left = floor(polyval(p_left,x_left));
 f_front(f_front>max(relatedDistance_mm)) = max(relatedDistance_mm);
 f_right(f_right>max(relatedDistance_mm)) = max(relatedDistance_mm);
 f_left(f_left>max(relatedDistance_mm)) = max(relatedDistance_mm);
+
+f_front(f_front<min(relatedDistance_mm)) = min(relatedDistance_mm);
+f_right(f_right<min(relatedDistance_mm)) = min(relatedDistance_mm);
+f_left(f_left<min(relatedDistance_mm)) = min(relatedDistance_mm);
 
 figure(1)
 subplot(1,2,1)
