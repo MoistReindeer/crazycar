@@ -2,7 +2,9 @@
 #include <DL/driver_rpm.h>
 #include <HAL/hal_gpio.h>
 #include <HAL/hal_ucs.h>
+#include <AL/al_conv.h>
 
+extern ConversionData ConvertedData;
 extern unsigned int RPM_DISTANCE;
 int rpm_cnt;
 int velocity_dd;
@@ -37,7 +39,7 @@ __interrupt void RPM_CNT (void) {
 #pragma vector=TIMER0_A0_VECTOR;
 __interrupt void RPM_MEAS (void) {
     int velocity = (rpm_cnt * 5 * TA0_HZ) + velocity_dd;
-    velocity_dd = velocity;
-    rpm_cnt=0;
+    ConvertedData.velocity_dd = velocity;
+    rpm_cnt = 0;
     TA0CTL &= ~TAIFG;
 }
