@@ -30,13 +30,16 @@ void main(void)
 
 	while (1)
 	{
-	    if (ADC12Data.Status.B.ADCrdy == 1 && BUTTONCOM.active == 1) {
+	    if (ADC12Data.Status.B.ADCrdy == 1) {
 	        Fetch_Distance();
             Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
 	    }
+	    /*if (ADC12Data.Status.B.ADCrdy == 1 && BUTTONCOM.active == 1) {
+
+	    }*/
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
 	            LCD_BACKLIGHT_ON;

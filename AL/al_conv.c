@@ -12,9 +12,9 @@ const unsigned short ir_right[512] = {1700,1700,1700,1700,1700,1700,1700,1700,17
 
 void Fetch_Distance() {
     unsigned int idf, idr, idl;
-    idf = (int)(ADC12Data.ADCBuffer[1] >> 3);
+    idf = (int)(ADC12Data.ADCBuffer[2] >> 3);
     idr = (int)(ADC12Data.ADCBuffer[0] >> 3);
-    idl = (int)(ADC12Data.ADCBuffer[2] >> 3);
+    idl = (int)(ADC12Data.ADCBuffer[1] >> 3);
 
     ConvertedData.Distance.front = ir_front[idf];
     ConvertedData.Distance.right = ir_right[idr];
