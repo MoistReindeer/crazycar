@@ -7,6 +7,7 @@ typedef struct {
     struct {
         unsigned short curr; // Last set steering direction
         unsigned short set; // To be set steering direction
+        unsigned char uTurn; // 0 if not, 1 if U-Turn
     } Steer;
     struct {
         short curr;

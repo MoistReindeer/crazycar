@@ -43,9 +43,9 @@ void main(void)
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
-	            LCD_BACKLIGHT_ON;
+	            Driver_SetThrottle(55);
 	        } else if (BUTTONCOM.button == 1){
-	            LCD_BACKLIGHT_OFF;
+	            Driver_SetThrottle(0);
 	        }
 	        BUTTONCOM.active = 0;
 	    }

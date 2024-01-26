@@ -22,11 +22,15 @@ void AL_Param_Init() {
 }
 
 void AL_Control_Drive() {
-
+    Driver_SetThrottle(60);
 }
 
 void AL_Control_Steer() {
-    parameters.e = ConvertedData.Distance.right - ConvertedData.Distance.left;
+    if (ConvertedData.Distance.right > ConvertedData.Distance.left) {
+        parameters.e = ConvertedData.Distance.right - ConvertedData.Distance.left;
+    } else {
+        parameters.e = ConvertedData.Distance.left - ConvertedData.Distance.right;
+    }
     if ((parameters.y > parameters.satLow) && (parameters.y < parameters.satHigh)) {
         parameters.esum += parameters.e;
     }
@@ -40,18 +44,30 @@ void AL_Control_Steer() {
     } else if (parameters.y > parameters.satHigh) {
         parameters.y = parameters.satHigh;
     }
-    Driver_SetSteering(parameters.y);
 }
 
 void AL_Fetch_Direction() {
-    short direction = ConvertedData.Distance.right - ConvertedData.Distance.left;
-    if (direction < -DEAD_ZONE) {
+    short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
+    short steeringValue = 0;
+    if ((ConvertedData.Distance.right >= ConvertedData.Distance.front) || (ConvertedData.Distance.left >= ConvertedData.Distance.front)) {
+        DriveStatus.Steer.uTurn = 1;
+    } else if (DriveStatus.Steer.set == FORWARD && (ConvertedData.velocity_dd > 200)) {
+        DriveStatus.Steer.uTurn = 0;
+    }
+    Driver_LCD_WriteUInt(DriveStatus.Steer.uTurn, 5, 0);
+
+    if ((direction < -DEAD_ZONE) || ((DriveStatus.Steer.uTurn == 1)) && (DriveStatus.Steer.curr == LEFT)) {
         DriveStatus.Steer.set = LEFT;
-    } else if (direction > DEAD_ZONE) {
+        steeringValue = parameters.y*-1;
+    } else if ((direction > DEAD_ZONE) || ((DriveStatus.Steer.uTurn == 1)) && (DriveStatus.Steer.curr == RIGHT)) {
         DriveStatus.Steer.set = RIGHT;
+        steeringValue = parameters.y;
     } else {
         DriveStatus.Steer.set = FORWARD;
+        steeringValue = 0;
     }
+
+    Driver_SetSteering(steeringValue);
     Driver_LCD_WriteUInt(DriveStatus.Steer.set, 3, 0);
     return;
 }
