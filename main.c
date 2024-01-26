@@ -8,6 +8,7 @@
 #include <DL/driver_rpm.h>
 #include <HAL/hal_adc12.h>
 #include <AL/al_conv.h>
+#include <AL/al_control.h>
 
 #define AVG 32
 
@@ -32,14 +33,12 @@ void main(void)
 	{
 	    if (ADC12Data.Status.B.ADCrdy == 1) {
 	        Fetch_Distance();
+	        AL_Fetch_Direction();
             Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
 	    }
-	    /*if (ADC12Data.Status.B.ADCrdy == 1 && BUTTONCOM.active == 1) {
-
-	    }*/
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
 	            LCD_BACKLIGHT_ON;
