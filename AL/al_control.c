@@ -16,12 +16,14 @@ short curveDelay = 0;
 
 void AL_Param_Init() {
     parameters.kp = 0.25;
-    parameters.ki = 0.01;
+    parameters.ki = 0.04;
     parameters.kd = 0.02;
     parameters.esum = 0;
     parameters.ta = 0.1;
     parameters.satLow = -100;
     parameters.satHigh = 100;
+
+    DriveStatus.Steer.curveCount = 0;
 }
 
 void AL_Control_Drive() {
@@ -46,17 +48,27 @@ void AL_Control_Steer() {
 }
 
 void AL_Fetch_Direction() {
+    if (DriveStatus.start == 0) {
+        return;
+    }
+    AL_Control_Steer();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
 
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
-            if (diff < (-DEAD_ZONE - 450))
+            if (diff < (-DEAD_ZONE - 450)) {
                 DriveStatus.Steer.curr = RIGHT;
-            else if (diff > (DEAD_ZONE + 450))
+                DriveStatus.Steer.curveCount += 1;
+                Driver_SetThrottle(35);
+            } else if (diff > (DEAD_ZONE + 450)) {
                 DriveStatus.Steer.curr = LEFT;
-            else
+                DriveStatus.Steer.curveCount += 1;
+                Driver_SetThrottle(35);
+            } else {
                 steeringValue = parameters.y >> 1;
+                Driver_SetThrottle(60);
+            }
             break;
         case LEFT:
             /*if (parameters.y <= 50) { // Basic Correction, keine Kurve
@@ -76,12 +88,13 @@ void AL_Fetch_Direction() {
         case CORRECTION:
             steeringValue = parameters.y;
     }
-    if (ConvertedData.Distance.front <= 250) {
+    /*if (ConvertedData.Distance.front <= 175) {
         Driver_SetThrottle(0);
-    }
+    }*/
+    //AL_Control_Drive();
     Driver_SetSteering(steeringValue);
     Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
-    Driver_LCD_WriteUInt(diff, 5, 0);
+    Driver_LCD_WriteUInt(DriveStatus.Steer.curveCount, 5, 0);
     Driver_LCD_WriteUInt(parameters.y, 6, 0);
     return;
 }

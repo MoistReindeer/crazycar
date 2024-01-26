@@ -17,6 +17,7 @@ extern USCIB1_SPICom SPICom;
 extern unsigned int RPM_DISTANCE;
 extern ADC12Com ADC12Data;
 extern ConversionData ConvertedData;
+extern DriveStatus_t DriveStatus;
 
 /**
  * main.c
@@ -35,7 +36,7 @@ void main(void)
 	    if (ADC12Data.Status.B.ADCrdy == 1) {
 	        Fetch_Distance();
 	        AL_Fetch_Direction();
-	        AL_Control_Steer();
+	        //AL_Control_Steer();
             Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
@@ -43,9 +44,9 @@ void main(void)
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
-	            Driver_SetThrottle(55);
+	            DriveStatus.start = 1;
 	        } else if (BUTTONCOM.button == 1){
-	            Driver_SetThrottle(0);
+	            DriveStatus.start = 0;
 	        }
 	        BUTTONCOM.active = 0;
 	    }

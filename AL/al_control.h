@@ -8,11 +8,13 @@ typedef struct {
         unsigned short curr; // Last set steering direction
         unsigned short set; // To be set steering direction
         unsigned char uturn; // 0 if not, 1 if U-Turn
+        unsigned short curveCount;
     } Steer;
     struct {
         short curr;
         short set;
     } Drive;
+    char start;
 } DriveStatus_t;
 
 typedef struct {
