@@ -8,7 +8,7 @@ typedef struct {
         unsigned short curr; // Last set steering direction
         unsigned short set; // To be set steering direction
         unsigned char uturn; // 0 if not, 1 if U-Turn
-        unsigned short curveCount;
+        unsigned char circle; // Used for kreisel, 1 if detected, 0 if not
     } Steer;
     struct {
         short curr;
