@@ -26,6 +26,7 @@ void main(void)
     HAL_Init();
     HAL_USCIB1_Init();
     Driver_Init();
+    AL_Param_Init();
 
     // Driver_LCD_Test();
 
@@ -34,6 +35,7 @@ void main(void)
 	    if (ADC12Data.Status.B.ADCrdy == 1) {
 	        Fetch_Distance();
 	        AL_Fetch_Direction();
+	        AL_Control_Steer();
             Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
