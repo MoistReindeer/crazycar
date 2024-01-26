@@ -11,6 +11,9 @@ extern ConversionData ConvertedData;
 DriveStatus_t DriveStatus;
 PIParams_t parameters;
 
+short steeringValue = 0;
+short curveDelay = 0;
+
 void AL_Param_Init() {
     parameters.kp = 0.25;
     parameters.ki = 0.01;
@@ -26,11 +29,7 @@ void AL_Control_Drive() {
 }
 
 void AL_Control_Steer() {
-    if (ConvertedData.Distance.right > ConvertedData.Distance.left) {
-        parameters.e = ConvertedData.Distance.right - ConvertedData.Distance.left;
-    } else {
-        parameters.e = ConvertedData.Distance.left - ConvertedData.Distance.right;
-    }
+    parameters.e = ConvertedData.Distance.right - ConvertedData.Distance.left; // +400 Aligns the car with the right wall
     if ((parameters.y > parameters.satLow) && (parameters.y < parameters.satHigh)) {
         parameters.esum += parameters.e;
     }
@@ -48,26 +47,41 @@ void AL_Control_Steer() {
 
 void AL_Fetch_Direction() {
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
-    short steeringValue = 0;
-    if ((ConvertedData.Distance.right >= ConvertedData.Distance.front) || (ConvertedData.Distance.left >= ConvertedData.Distance.front)) {
-        DriveStatus.Steer.uTurn = 1;
-    } else if (DriveStatus.Steer.set == FORWARD && (ConvertedData.velocity_dd > 200)) {
-        DriveStatus.Steer.uTurn = 0;
-    }
-    Driver_LCD_WriteUInt(DriveStatus.Steer.uTurn, 5, 0);
+    short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
 
-    if ((direction < -DEAD_ZONE) || ((DriveStatus.Steer.uTurn == 1)) && (DriveStatus.Steer.curr == LEFT)) {
-        DriveStatus.Steer.set = LEFT;
-        steeringValue = parameters.y*-1;
-    } else if ((direction > DEAD_ZONE) || ((DriveStatus.Steer.uTurn == 1)) && (DriveStatus.Steer.curr == RIGHT)) {
-        DriveStatus.Steer.set = RIGHT;
-        steeringValue = parameters.y;
-    } else {
-        DriveStatus.Steer.set = FORWARD;
-        steeringValue = 0;
+    switch (DriveStatus.Steer.curr) {
+        case FORWARD:
+            if (diff < (-DEAD_ZONE - 450))
+                DriveStatus.Steer.curr = RIGHT;
+            else if (diff > (DEAD_ZONE + 450))
+                DriveStatus.Steer.curr = LEFT;
+            else
+                steeringValue = parameters.y >> 1;
+            break;
+        case LEFT:
+            /*if (parameters.y <= 50) { // Basic Correction, keine Kurve
+                steeringValue = parameters.y;
+            }*/
+            if (sum <= ConvertedData.Distance.front)
+                DriveStatus.Steer.curr = FORWARD;
+            else
+                steeringValue = 100;
+            break;
+        case RIGHT:
+            if (sum <= ConvertedData.Distance.front)
+                DriveStatus.Steer.curr = FORWARD;
+            else
+                steeringValue = -100;
+            break;
+        case CORRECTION:
+            steeringValue = parameters.y;
     }
-
+    if (ConvertedData.Distance.front <= 250) {
+        Driver_SetThrottle(0);
+    }
     Driver_SetSteering(steeringValue);
-    Driver_LCD_WriteUInt(DriveStatus.Steer.set, 3, 0);
+    Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
+    Driver_LCD_WriteUInt(diff, 5, 0);
+    Driver_LCD_WriteUInt(parameters.y, 6, 0);
     return;
 }
