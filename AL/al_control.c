@@ -52,9 +52,10 @@ void AL_Fetch_Direction() {
     short circ = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
 
     if (DriveStatus.Steer.count >= 0 && DriveStatus.Steer.count < 4){
-        if (ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1500 && ConvertedData.Distance.left >= 200 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 1100)
-//.right >= 1500 && ConvertedData.Distance.front <= 1200 && ConvertedData.Distance.front >= 1100 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 600)
+        if (ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1500 && ConvertedData.Distance.left >= 200 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 1100) {
             DriveStatus.Steer.circle = 1;
+        }
+//.right >= 1500 && ConvertedData.Distance.front <= 1200 && ConvertedData.Distance.front >= 1100 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 600)
     }
 
     switch (DriveStatus.Steer.curr) {
@@ -105,7 +106,6 @@ void AL_Fetch_Direction() {
     //AL_Control_Drive();
     if (DriveStatus.Steer.circle == 1) {
         DriveStatus.Steer.curr = FORWARD;
-
         steeringValue = 0;
     }
     Driver_SetSteering(steeringValue);
