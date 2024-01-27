@@ -18,6 +18,7 @@ typedef struct {
 
     unsigned short speed;
     unsigned short velocity_dd;
+    unsigned short battery_voltage;
 }ConversionData;
 
 extern ConversionData ConvertedData;

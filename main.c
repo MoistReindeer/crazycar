@@ -41,6 +41,7 @@ void main(void)
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
+            Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[0], 7, 0);
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
