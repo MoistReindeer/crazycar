@@ -54,25 +54,25 @@ void HAL_GPIO_Init(void) {
     // ### Custom Definitions ###
 
     // Stop Button
-    P1DIR &= ~BIT7; // TODO: makros statt BIT definition verwenden
-    P1OUT |= BIT7;
-    P1IE |= BIT7;
-    P1IES |= BIT7;
+    P1DIR &= ~STOP_BUTTON;
+    P1OUT |= STOP_BUTTON;
+    P1IE |= STOP_BUTTON;
+    P1IES |= STOP_BUTTON;
 
     // Start Button
-    P1DIR &= ~BIT6;
-    P1OUT |= BIT6;
-    P1IE |= BIT6;
-    P1IES |= BIT6;
+    P1DIR &= ~START_BUTTON;
+    P1OUT |= START_BUTTON;
+    P1IE |= START_BUTTON;
+    P1IES |= START_BUTTON;
 
     // Konfigurieren der Clock, XT2-Pins
-    P7SEL |= BIT2;
-    P7SEL |= BIT3;
+    P7SEL |= XT2IN;
+    P7SEL |= XT2OUT;
     UCSCTL6 &= ~XT2BYPASS;
 
     // SMCLK-Output Messung
-    P3DIR |= BIT4;
-    P3SEL |= BIT4;
+    P3DIR |= SMCLK;
+    P3SEL |= SMCLK;
 
     // Steering & Throttle
     P3DIR |= THROTTLE;
