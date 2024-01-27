@@ -60,14 +60,18 @@ void AL_Fetch_Direction() {
                 DriveStatus.Steer.curr = RIGHT;
                 if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
-                else
+                else {
+                    DriveStatus.Steer.count += 1;
                     Driver_SetThrottle(45);
+                }
             } else if (diff > DEAD_ZONE) {
                 DriveStatus.Steer.curr = LEFT;
                 if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
-                else
+                else {
+                    DriveStatus.Steer.count += 1;
                     Driver_SetThrottle(45);
+                }
             } else {
                 steeringValue = parameters.y >> 1;
                 if (DriveStatus.start == 0)
@@ -103,6 +107,6 @@ void AL_Fetch_Direction() {
     Driver_SetSteering(steeringValue);
     Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
     Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 0);
-    Driver_LCD_WriteUInt(diff, 6, 0);
+    Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 0);
     return;
 }
