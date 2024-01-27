@@ -1,7 +1,9 @@
 #include "HAL/hal_gpio.h"
 #include <msp430.h>
+#include <AL/al_control.h>
 
 extern ButtonCom BUTTONCOM;
+extern DriveStatus_t DriveStatus;
 
 void HAL_GPIO_Init(void) {
     // ### Port 1 Default ###
@@ -125,5 +127,5 @@ __interrupt void P1_ISR(void) {
 
 #pragma vector = TIMERB0_VECTOR
 __interrupt void TimerB0(void) {
-
+    DriveStatus.requested = 1;
 }

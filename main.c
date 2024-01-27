@@ -33,15 +33,16 @@ void main(void)
 
 	while (1)
 	{
-	    if (ADC12Data.Status.B.ADCrdy == 1) {
+	    if (DriveStatus.requested == 1 && ADC12Data.Status.B.ADCrdy == 1) {
 	        Fetch_Distance();
-	        AL_Fetch_Direction();
-	        //AL_Control_Steer();
+            AL_Fetch_Direction();
+            //AL_Control_Steer();
             Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
             Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
             Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
             Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[0], 7, 0);
+            DriveStatus.requested = 0;
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
