@@ -9,13 +9,14 @@ typedef struct {
         unsigned short set; // To be set steering direction
         unsigned char uturn; // 0 if not, 1 if U-Turn
         unsigned char circle; // Used for kreisel, 1 if detected, 0 if not
-        unsigned char count;
+        unsigned short count;
     } Steer;
     struct {
         short curr;
         short set;
     } Drive;
     char start;
+    char requested;
 } DriveStatus_t;
 
 typedef struct {

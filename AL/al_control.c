@@ -51,8 +51,11 @@ void AL_Fetch_Direction() {
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
     short circ = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
 
-    if (ConvertedData.Distance.right >= 1500 && ConvertedData.Distance.front <= 1200 && ConvertedData.Distance.front >= 1100 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 600)
-        DriveStatus.Steer.circle = 1;
+    if (DriveStatus.Steer.count >= 0 && DriveStatus.Steer.count < 4){
+        if (ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1500 && ConvertedData.Distance.left >= 200 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 1100)
+//.right >= 1500 && ConvertedData.Distance.front <= 1200 && ConvertedData.Distance.front >= 1100 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 600)
+            DriveStatus.Steer.circle = 1;
+    }
 
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
@@ -62,7 +65,7 @@ void AL_Fetch_Direction() {
                     Driver_SetThrottle(0);
                 else {
                     DriveStatus.Steer.count += 1;
-                    Driver_SetThrottle(45);
+                    Driver_SetThrottle(40);
                 }
             } else if (diff > DEAD_ZONE) {
                 DriveStatus.Steer.curr = LEFT;
@@ -70,7 +73,7 @@ void AL_Fetch_Direction() {
                     Driver_SetThrottle(0);
                 else {
                     DriveStatus.Steer.count += 1;
-                    Driver_SetThrottle(45);
+                    Driver_SetThrottle(40);
                 }
             } else {
                 steeringValue = parameters.y >> 1;
@@ -85,11 +88,11 @@ void AL_Fetch_Direction() {
                 DriveStatus.Steer.curr = FORWARD;
             else
                 steeringValue = 100;
+            DriveStatus.Steer.circle = 0;
             break;
         case RIGHT:
             if (sum <= ConvertedData.Distance.front) {
                 DriveStatus.Steer.curr = FORWARD;
-                steeringValue = 0;
             } else
                 steeringValue = -100;
             break;
@@ -100,10 +103,11 @@ void AL_Fetch_Direction() {
         Driver_SetThrottle(0);
     }*/
     //AL_Control_Drive();
-    /*if (DriveStatus.Steer.circle != 1) {
+    if (DriveStatus.Steer.circle == 1) {
         DriveStatus.Steer.curr = FORWARD;
+
         steeringValue = 0;
-    }*/
+    }
     Driver_SetSteering(steeringValue);
     Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
     Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 0);
