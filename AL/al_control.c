@@ -76,17 +76,13 @@ void AL_Fetch_Direction() {
             /*if (parameters.y <= 50) { // Basic Correction, keine Kurve
                 steeringValue = parameters.y;
             }*/
-            if (DriveStatus.Steer.circle == 1) {
-                DriveStatus.Steer.circle = 0;
-            } else if (sum <= ConvertedData.Distance.front)
+            if (sum <= ConvertedData.Distance.front)
                 DriveStatus.Steer.curr = FORWARD;
             else
                 steeringValue = 100;
             break;
         case RIGHT:
-            if (DriveStatus.Steer.circle == 1) {
-                DriveStatus.Steer.curr = FORWARD;
-            } else if (sum <= ConvertedData.Distance.front)
+            if (sum <= ConvertedData.Distance.front)
                 DriveStatus.Steer.curr = FORWARD;
             else
                 steeringValue = -100;
@@ -100,7 +96,7 @@ void AL_Fetch_Direction() {
     //AL_Control_Drive();
     Driver_SetSteering(steeringValue);
     Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
-    Driver_LCD_WriteUInt(circ, 5, 0);
+    Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 0);
     Driver_LCD_WriteUInt(parameters.y, 6, 0);
     return;
 }
