@@ -15,13 +15,13 @@ short steeringValue = 0;
 short curveDelay = 0;
 
 void AL_Param_Init() {
-    parameters.kp = 0.25;
-    parameters.ki = 0.04;
-    parameters.kd = 0.02;
-    parameters.esum = 0;
-    parameters.ta = 0.1;
-    parameters.satLow = -100;
-    parameters.satHigh = 100;
+    parameters.Steer.kp = 0.25;
+    parameters.Steer.ki = 0.04;
+    parameters.Steer.kd = 0.02;
+    parameters.Steer.esum = 0;
+    parameters.Steer.ta = 0.1;
+    parameters.Steer.satLow = -100;
+    parameters.Steer.satHigh = 100;
 }
 
 void AL_Control_Drive() {
@@ -29,19 +29,19 @@ void AL_Control_Drive() {
 }
 
 void AL_Control_Steer() {
-    parameters.e = ConvertedData.Distance.right - ConvertedData.Distance.left; // +400 Aligns the car with the right wall
-    if ((parameters.y > parameters.satLow) && (parameters.y < parameters.satHigh)) {
-        parameters.esum += parameters.e;
+    parameters.Steer.e = ConvertedData.Distance.right - ConvertedData.Distance.left; // +400 Aligns the car with the right wall
+    if ((parameters.Steer.y > parameters.Steer.satLow) && (parameters.Steer.y < parameters.Steer.satHigh)) {
+        parameters.Steer.esum += parameters.Steer.e;
     }
-    parameters.y = parameters.kp * parameters.e;
-    parameters.y += parameters.ki * parameters.ta * parameters.esum;
-    parameters.y += parameters.kd * (parameters.e - parameters.e_old) / parameters.ta;
-    parameters.e_old = parameters.e;
+    parameters.Steer.y = parameters.Steer.kp * parameters.Steer.e;
+    parameters.Steer.y += parameters.Steer.ki * parameters.Steer.ta * parameters.Steer.esum;
+    parameters.Steer.y += parameters.Steer.kd * (parameters.Steer.e - parameters.Steer.e_old) / parameters.Steer.ta;
+    parameters.Steer.e_old = parameters.Steer.e;
 
-    if (parameters.y < parameters.satLow) {
-        parameters.y = parameters.satLow;
-    } else if (parameters.y > parameters.satHigh) {
-        parameters.y = parameters.satHigh;
+    if (parameters.Steer.y < parameters.Steer.satLow) {
+        parameters.Steer.y = parameters.Steer.satLow;
+    } else if (parameters.Steer.y > parameters.Steer.satHigh) {
+        parameters.Steer.y = parameters.Steer.satHigh;
     }
 }
 
@@ -49,6 +49,7 @@ void AL_Fetch_Direction() {
     AL_Control_Steer();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
+    short area = (ConvertedData.Distance.right * ConvertedData.Distance.front * 0.85) >> 1 + (ConvertedData.Distance.left * ConvertedData.Distance.front * 0.85) >> 1; // 0.85 = sin(~45°)
     short circ = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
 
     if (DriveStatus.Steer.count >= 0 && DriveStatus.Steer.count < 4){
@@ -77,7 +78,7 @@ void AL_Fetch_Direction() {
                     Driver_SetThrottle(40);
                 }
             } else {
-                steeringValue = parameters.y >> 1;
+                steeringValue = parameters.Steer.y >> 1;
                 if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else
@@ -98,7 +99,7 @@ void AL_Fetch_Direction() {
                 steeringValue = -100;
             break;
         case CORRECTION:
-            steeringValue = parameters.y;
+            steeringValue = parameters.Steer.y;
     }
     /*if (ConvertedData.Distance.front <= 175) {
         Driver_SetThrottle(0);
@@ -109,7 +110,7 @@ void AL_Fetch_Direction() {
         steeringValue = 0;
     }
     Driver_SetSteering(steeringValue);
-    Driver_LCD_WriteUInt(DriveStatus.Steer.curr, 3, 0);
+    Driver_LCD_WriteUInt(area, 3, 0);
     Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 0);
     Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 0);
     return;

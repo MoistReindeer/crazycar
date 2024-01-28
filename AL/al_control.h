@@ -20,8 +20,14 @@ typedef struct {
 } DriveStatus_t;
 
 typedef struct {
-    float kp, ki, kd, esum, ta;
-    short e, e_old, y, satLow, satHigh;
+    struct {
+        float kp, ki, kd, esum, ta;
+        short e, e_old, y, satLow, satHigh;
+    } Steer;
+    struct {
+        float kp, ki, kd, esum, ta;
+        short e, e_old, y, satLow, satHigh;
+    } Drive;
 } PIParams_t;
 
 void AL_Param_Init();
