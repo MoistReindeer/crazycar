@@ -49,7 +49,7 @@ void AL_Fetch_Direction() {
     AL_Control_Steer();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
-    short area = (ConvertedData.Distance.right * ConvertedData.Distance.front * 0.85) >> 1 + (ConvertedData.Distance.left * ConvertedData.Distance.front * 0.85) >> 1; // 0.85 = sin(~45°)
+    unsigned int area = ((ConvertedData.Distance.right >> 6 * ConvertedData.Distance.front >> 6 * 27) << 7) >> 1 + ((ConvertedData.Distance.left >> 6 * ConvertedData.Distance.front >> 6 * 27) << 7) >> 1; // 0.85 = sin(~45°); 0.85 * 32 = 27.2; l & r /64; korretur umd << 7
     short circ = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
 
     if (DriveStatus.Steer.count >= 0 && DriveStatus.Steer.count < 4){
