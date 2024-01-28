@@ -17,17 +17,17 @@ short steeringValue = 0;
 short curveDelay = 0;
 
 void AL_Param_Init() {
-    parameters.Steer.kp = 0.25;
+    parameters.Steer.kp = 0.20;
     parameters.Steer.ki = 0.03;
-    parameters.Steer.kd = 0.09;
+    parameters.Steer.kd = 0.12;
     parameters.Steer.esum = 0;
     parameters.Steer.ta = 0.1;
     parameters.Steer.satLow = -60;
     parameters.Steer.satHigh = 60;
 
-    parameters.Drive.kp = 0.25;
+    parameters.Drive.kp = 0.05;
     parameters.Drive.ki = 0.04;
-    parameters.Drive.kd = 0.15;
+    parameters.Drive.kd = 0.30;
     parameters.Drive.esum = 0;
     parameters.Drive.ta = 0.1;
     parameters.Drive.satLow = -100;
@@ -35,7 +35,7 @@ void AL_Param_Init() {
 }
 
 void AL_Control_Drive() {
-    parameters.Drive.e = ConvertedData.Distance.front - DriveStatus.Drive.front_old;
+    parameters.Drive.e = (ConvertedData.Distance.front - DriveStatus.Drive.front_old + ConvertedData.Distance.left - DriveStatus.Drive.left_old + ConvertedData.Distance.right - DriveStatus.Drive.right_old)/3;
     if ((parameters.Drive.y > parameters.Drive.satLow) && (parameters.Drive.y < parameters.Drive.satHigh)) {
         parameters.Drive.esum += parameters.Drive.e;
     }
@@ -51,6 +51,9 @@ void AL_Control_Drive() {
     }
 
     Driver_SetThrottle(parameters.Drive.y);
+    DriveStatus.Drive.front_old = ConvertedData.Distance.front;
+    DriveStatus.Drive.left_old = ConvertedData.Distance.left;
+    DriveStatus.Drive.right_old = ConvertedData.Distance.right;
 }
 
 void AL_Average_Sensors() {
