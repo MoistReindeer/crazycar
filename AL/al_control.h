@@ -14,6 +14,9 @@ typedef struct {
     struct {
         short curr;
         short set;
+        unsigned short front_old;
+        unsigned short left_old;
+        unsigned short right_old;
     } Drive;
     struct {
         unsigned short value;

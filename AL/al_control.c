@@ -24,21 +24,33 @@ void AL_Param_Init() {
     parameters.Steer.ta = 0.1;
     parameters.Steer.satLow = -60;
     parameters.Steer.satHigh = 60;
+
+    parameters.Drive.kp = 0.25;
+    parameters.Drive.ki = 0.04;
+    parameters.Drive.kd = 0.15;
+    parameters.Drive.esum = 0;
+    parameters.Drive.ta = 0.1;
+    parameters.Drive.satLow = -100;
+    parameters.Drive.satHigh = 60;
 }
 
 void AL_Control_Drive() {
-    unsigned int speed;
-    if (ConvertedData.Distance.front > ConvertedData.Distance.left + ConvertedData.Distance.right || DriveStatus.Drive.curr == FORWARD)
-        speed = ConvertedData.Distance.front >> 4;
-    else if (DriveStatus.Drive.curr == LEFT)
-        speed = (ConvertedData.Distance.left + ConvertedData.Distance.front) >> 1;
-    else if (DriveStatus.Drive.curr == RIGHT)
-        speed = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
-    else
-        speed = ((ConvertedData.Distance.left + ConvertedData.Distance.right + ConvertedData.Distance.front)/3) >> 4;
-    Driver_SetThrottle(speed - 10);
-    Driver_LCD_WriteText("sp", 2, 3, 0);
-    Driver_LCD_WriteUInt(speed, 3, 49);
+    parameters.Drive.e = ConvertedData.Distance.front - DriveStatus.Drive.front_old;
+    if ((parameters.Drive.y > parameters.Drive.satLow) && (parameters.Drive.y < parameters.Drive.satHigh)) {
+        parameters.Drive.esum += parameters.Drive.e;
+    }
+    parameters.Drive.y = parameters.Drive.kp * parameters.Drive.e;
+    parameters.Drive.y += parameters.Drive.ki * parameters.Drive.ta * parameters.Drive.esum;
+    parameters.Drive.y += parameters.Drive.kd * (parameters.Drive.e - parameters.Drive.e_old) / parameters.Drive.ta;
+    parameters.Drive.e_old = parameters.Drive.e;
+
+    if (parameters.Drive.y < parameters.Drive.satLow) {
+        parameters.Drive.y = parameters.Drive.satLow;
+    } else if (parameters.Drive.y > parameters.Drive.satHigh) {
+        parameters.Drive.y = parameters.Drive.satHigh;
+    }
+
+    Driver_SetThrottle(parameters.Drive.y);
 }
 
 void AL_Average_Sensors() {
@@ -75,7 +87,7 @@ void AL_Control_Steer() {
 void AL_Fetch_Direction() {
     AL_Average_Sensors();
     if (DriveStatus.start != 0)
-        AL_Control_Steer();
+        AL_Control_Drive();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
 
