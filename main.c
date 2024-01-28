@@ -30,6 +30,7 @@ void main(void)
     AL_Param_Init();
 
     // Driver_LCD_Test();
+    DriveStatus.refreshCount = 0;
 
 	while (1)
 	{
@@ -37,11 +38,19 @@ void main(void)
 	        Fetch_Distance();
             AL_Fetch_Direction();
             //AL_Control_Steer();
-            Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
-            Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 0);
-            Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 0);
-            Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 0);
-            Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[0], 7, 0);
+            if (DriveStatus.refreshCount >= 120) {
+                //Driver_LCD_WriteUInt((ConvertedData.velocity_dd << 1), 4, 0); // division by 0.5 replaced with multiplication by 2
+                Driver_LCD_WriteText("f", 1, 0, 0);
+                Driver_LCD_WriteUInt(ConvertedData.Distance.front, 0, 8);
+                Driver_LCD_WriteText("l", 1, 1, 0);
+                Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 8);
+                Driver_LCD_WriteText("r", 1, 2, 0);
+                Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 8);
+                Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[0], 7, 0);
+                DriveStatus.refreshCount = 0;
+            } else {
+                DriveStatus.refreshCount += 1;
+            }
             DriveStatus.requested = 0;
 	    }
 	    if (BUTTONCOM.active == 1) {

@@ -4,10 +4,12 @@
 #include <AL/al_conv.h>
 #include <AL/al_control.h>
 #include <DL/driver_aktorik.h>
+#include <HAL/hal_adc12.h>
 
 #define DEAD_ZONE 475
 
 extern ConversionData ConvertedData;
+extern ADC12Com ADC12Data;
 DriveStatus_t DriveStatus;
 PIParams_t parameters;
 
@@ -16,16 +18,30 @@ short curveDelay = 0;
 
 void AL_Param_Init() {
     parameters.Steer.kp = 0.25;
-    parameters.Steer.ki = 0.04;
-    parameters.Steer.kd = 0.02;
+    parameters.Steer.ki = 0.03;
+    parameters.Steer.kd = 0.09;
     parameters.Steer.esum = 0;
     parameters.Steer.ta = 0.1;
-    parameters.Steer.satLow = -100;
-    parameters.Steer.satHigh = 100;
+    parameters.Steer.satLow = -60;
+    parameters.Steer.satHigh = 60;
 }
 
 void AL_Control_Drive() {
     Driver_SetThrottle(60);
+}
+
+void AL_Average_Sensors() {
+    unsigned int lbuff = 0, rbuff = 0, fbuff = 0, i;
+    for (i = 7; i == 0; i--) {
+        //while (ADC12Data.Status.B.ADCrdy != 1);
+        lbuff += ADC12Data.SensorLeft;
+        rbuff += ADC12Data.SensorRight;
+        fbuff += ADC12Data.SensorFront;
+    }
+
+    ConvertedData.Distance.left = ADC12Data.SensorLeft; // >> 3;
+    ConvertedData.Distance.right = ADC12Data.SensorRight; // >> 3;
+    ConvertedData.Distance.front = ADC12Data.SensorFront; // >> 3;
 }
 
 void AL_Control_Steer() {
@@ -46,72 +62,69 @@ void AL_Control_Steer() {
 }
 
 void AL_Fetch_Direction() {
+    AL_Average_Sensors();
     AL_Control_Steer();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
-    unsigned int area = ((ConvertedData.Distance.right >> 6 * ConvertedData.Distance.front >> 6 * 27) << 7) >> 1 + ((ConvertedData.Distance.left >> 6 * ConvertedData.Distance.front >> 6 * 27) << 7) >> 1; // 0.85 = sin(~45°); 0.85 * 32 = 27.2; l & r /64; korretur umd << 7
-    short circ = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
-
-    if (DriveStatus.Steer.count >= 0 && DriveStatus.Steer.count < 4){
-        if (ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1500 && ConvertedData.Distance.left >= 200 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 1100) {
-            DriveStatus.Steer.circle = 1;
-        }
-//.right >= 1500 && ConvertedData.Distance.front <= 1200 && ConvertedData.Distance.front >= 1100 && ConvertedData.Distance.left <= 800 && ConvertedData.Distance.right >= 600)
-    }
 
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
             if (diff < -DEAD_ZONE) {
-                DriveStatus.Steer.curr = RIGHT;
-                if (DriveStatus.start == 0)
-                    Driver_SetThrottle(0);
-                else {
-                    DriveStatus.Steer.count += 1;
-                    Driver_SetThrottle(40);
-                }
-            } else if (diff > DEAD_ZONE) {
                 DriveStatus.Steer.curr = LEFT;
                 if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else {
-                    DriveStatus.Steer.count += 1;
-                    Driver_SetThrottle(40);
+                    Driver_SetThrottle(36);
+                }
+            } else if (diff > DEAD_ZONE) {
+                DriveStatus.Steer.curr = RIGHT;
+                if (DriveStatus.start == 0)
+                    Driver_SetThrottle(0);
+                else {
+                    Driver_SetThrottle(36);
                 }
             } else {
-                steeringValue = parameters.Steer.y >> 1;
+                steeringValue = parameters.Steer.y;
                 if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else
-                    Driver_SetThrottle(55);
+                    Driver_SetThrottle(53);
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front)
-                DriveStatus.Steer.curr = FORWARD;
-            else
-                steeringValue = 100;
-            DriveStatus.Steer.circle = 0;
-            break;
-        case RIGHT:
-            if (sum <= ConvertedData.Distance.front) {
+            if (sum <= ConvertedData.Distance.front && diff > -DEAD_ZONE) {
+                DriveStatus.Steer.count += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
                 steeringValue = -100;
             break;
+        case RIGHT:
+            if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
+                DriveStatus.Steer.curr = FORWARD;
+                DriveStatus.Steer.circle = 1;
+            } else if (sum <= ConvertedData.Distance.front && diff < DEAD_ZONE) {
+                DriveStatus.Steer.count += 1;
+                DriveStatus.Steer.curr = FORWARD;
+            } else
+                steeringValue = 100;
+            break;
         case CORRECTION:
-            steeringValue = parameters.Steer.y;
-    }
-    /*if (ConvertedData.Distance.front <= 175) {
-        Driver_SetThrottle(0);
-    }*/
-    //AL_Control_Drive();
-    if (DriveStatus.Steer.circle == 1) {
-        DriveStatus.Steer.curr = FORWARD;
-        steeringValue = 0;
+            steeringValue = parameters.Steer.y >> 1;
     }
     Driver_SetSteering(steeringValue);
-    Driver_LCD_WriteUInt(area, 3, 0);
-    Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 0);
-    Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 0);
+    if (DriveStatus.refreshCount >= 120) {
+        Driver_LCD_WriteText("circle", 7, 5, 0);
+        Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 49);
+        Driver_LCD_WriteText("cnt", 3, 6, 0);
+        Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 49);
+        Driver_LCD_WriteText("ar", 2, 3, 0);
+        Driver_LCD_WriteUInt(DriveStatus.arear, 3, 49);
+        Driver_LCD_WriteText("al", 2, 4, 0);
+        Driver_LCD_WriteUInt(DriveStatus.areal, 4, 49);
+        /*Driver_LCD_WriteText("stat", 4, 3, 0);
+        Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
+    }
+    if (DriveStatus.Steer.count >= 8)
+        DriveStatus.Steer.count = 0;
     return;
 }

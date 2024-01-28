@@ -16,7 +16,7 @@ void Fetch_Distance() {
     idr = (int)(ADC12Data.ADCBuffer[0] >> 3);
     idl = (int)(ADC12Data.ADCBuffer[1] >> 3);
 
-    ConvertedData.Distance.front = ir_front[idf];
-    ConvertedData.Distance.right = ir_right[idr];
-    ConvertedData.Distance.left = ir_left[idl];
+    ADC12Data.SensorFront = ir_front[idf];
+    ADC12Data.SensorRight = ir_right[idr];
+    ADC12Data.SensorLeft = ir_left[idl];
 }
