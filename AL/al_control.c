@@ -27,7 +27,18 @@ void AL_Param_Init() {
 }
 
 void AL_Control_Drive() {
-    Driver_SetThrottle(60);
+    unsigned int speed;
+    if (ConvertedData.Distance.front > ConvertedData.Distance.left + ConvertedData.Distance.right || DriveStatus.Drive.curr == FORWARD)
+        speed = ConvertedData.Distance.front >> 4;
+    else if (DriveStatus.Drive.curr == LEFT)
+        speed = (ConvertedData.Distance.left + ConvertedData.Distance.front) >> 1;
+    else if (DriveStatus.Drive.curr == RIGHT)
+        speed = (ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1;
+    else
+        speed = ((ConvertedData.Distance.left + ConvertedData.Distance.right + ConvertedData.Distance.front)/3) >> 4;
+    Driver_SetThrottle(speed - 10);
+    Driver_LCD_WriteText("sp", 2, 3, 0);
+    Driver_LCD_WriteUInt(speed, 3, 49);
 }
 
 void AL_Average_Sensors() {
@@ -63,7 +74,8 @@ void AL_Control_Steer() {
 
 void AL_Fetch_Direction() {
     AL_Average_Sensors();
-    AL_Control_Steer();
+    if (DriveStatus.start != 0)
+        AL_Control_Steer();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
     short sum = ConvertedData.Distance.right + ConvertedData.Distance.left;
 
@@ -71,24 +83,24 @@ void AL_Fetch_Direction() {
         case FORWARD:
             if (diff < -DEAD_ZONE) {
                 DriveStatus.Steer.curr = LEFT;
-                if (DriveStatus.start == 0)
+                /*if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else {
                     Driver_SetThrottle(36);
-                }
+                }*/
             } else if (diff > DEAD_ZONE) {
                 DriveStatus.Steer.curr = RIGHT;
-                if (DriveStatus.start == 0)
+                /*if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else {
                     Driver_SetThrottle(36);
-                }
+                }*/
             } else {
                 steeringValue = parameters.Steer.y;
-                if (DriveStatus.start == 0)
+                /*if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else
-                    Driver_SetThrottle(53);
+                    Driver_SetThrottle(53);*/
             }
             break;
         case LEFT:
@@ -112,15 +124,12 @@ void AL_Fetch_Direction() {
             steeringValue = parameters.Steer.y >> 1;
     }
     Driver_SetSteering(steeringValue);
+    AL_Control_Drive();
     if (DriveStatus.refreshCount >= 120) {
         Driver_LCD_WriteText("circle", 7, 5, 0);
         Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 49);
         Driver_LCD_WriteText("cnt", 3, 6, 0);
         Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 49);
-        Driver_LCD_WriteText("ar", 2, 3, 0);
-        Driver_LCD_WriteUInt(DriveStatus.arear, 3, 49);
-        Driver_LCD_WriteText("al", 2, 4, 0);
-        Driver_LCD_WriteUInt(DriveStatus.areal, 4, 49);
         /*Driver_LCD_WriteText("stat", 4, 3, 0);
         Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
     }

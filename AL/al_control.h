@@ -15,6 +15,9 @@ typedef struct {
         short curr;
         short set;
     } Drive;
+    struct {
+        unsigned short value;
+    } Speed;
     char start;
     char requested;
     unsigned short refreshCount;
