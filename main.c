@@ -30,8 +30,6 @@ void main(void)
     AL_Param_Init();
 
     // Driver_LCD_Test();
-    DriveStatus.refreshCount = 0;
-    DriveStatus.start = 0;
 
 	while (1)
 	{
@@ -57,6 +55,7 @@ void main(void)
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
 	            DriveStatus.start = 1;
+	            AL_Param_Init();
 	        } else if (BUTTONCOM.button == 1){
 	            DriveStatus.start = 0;
 	        }

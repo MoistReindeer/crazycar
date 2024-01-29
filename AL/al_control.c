@@ -6,7 +6,7 @@
 #include <DL/driver_aktorik.h>
 #include <HAL/hal_adc12.h>
 
-#define DEAD_ZONE 475
+#define DEAD_ZONE 525
 
 extern ConversionData ConvertedData;
 extern ADC12Com ADC12Data;
@@ -17,11 +17,11 @@ short steeringValue = 0;
 short curveDelay = 0;
 
 void AL_Param_Init() {
-    parameters.Steer.kp = 0.25;
-    parameters.Steer.ki = 0.04;
-    parameters.Steer.kd = 0.02;
+    parameters.Steer.kp = 0.15;
+    parameters.Steer.ki = 0.02;
+    parameters.Steer.kd = 0.15;
     parameters.Steer.esum = 0;
-    parameters.Steer.ta = 0.1;
+    parameters.Steer.ta = 0.008;
     parameters.Steer.satLow = -60;
     parameters.Steer.satHigh = 60;
 
@@ -32,6 +32,11 @@ void AL_Param_Init() {
     parameters.Drive.ta = 0.1;
     parameters.Drive.satLow = -100;
     parameters.Drive.satHigh = 60;
+
+    // Set default parameters
+    DriveStatus.Steer.curr = FOWARD;
+    DriveStatus.refreshCount = 0;
+    DriveStatus.start = 0;
 }
 
 void AL_Control_Drive() {
@@ -67,12 +72,14 @@ void AL_Control_Drive() {
                 speed = front_speed_tbl[((ConvertedData.Distance.right + ConvertedData.Distance.front) >> 2) >> 3];
                 break;
     }
-    if (speed > 65)
-        speed = 65;
-    else if (speed < 30)
-        speed = 40;
+    if (speed > 60)
+        speed = 60;
+    else if (speed < 38)
+        speed = 38;
     if (ConvertedData.Distance.front <= 100)
         speed = 0;
+    Driver_LCD_WriteText("spd", 3, 3, 0);
+    Driver_LCD_WriteUInt(speed, 3, 49);
     Driver_SetThrottle(speed);
 }
 
@@ -110,6 +117,7 @@ void AL_Control_Steer() {
 
 void AL_Fetch_Direction() {
     AL_Average_Sensors();
+    AL_Control_Steer();
     if (DriveStatus.start != 0)
         AL_Control_Drive();
     short diff = ConvertedData.Distance.right - ConvertedData.Distance.left;
@@ -132,7 +140,7 @@ void AL_Fetch_Direction() {
                     Driver_SetThrottle(36);
                 }*/
             } else {
-                steeringValue = parameters.Steer.y;
+                steeringValue = parameters.Steer.y >> 1;
                 /*if (DriveStatus.start == 0)
                     Driver_SetThrottle(0);
                 else
@@ -140,14 +148,14 @@ void AL_Fetch_Direction() {
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front || diff > -DEAD_ZONE) {
+            if (sum <= ConvertedData.Distance.front && diff > -DEAD_ZONE) {
                 DriveStatus.Steer.count += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
                 steeringValue = -100;
             break;
         case RIGHT:
-            if (DriveStatus.Steer.count == 2 || ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
+            if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
                 DriveStatus.Steer.curr = FORWARD;
                 DriveStatus.Steer.circle = 1;
             } else if (sum <= ConvertedData.Distance.front && diff < DEAD_ZONE) {
