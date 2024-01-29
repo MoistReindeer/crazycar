@@ -54,8 +54,8 @@ void main(void)
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
-	            DriveStatus.start = 1;
 	            AL_Param_Init();
+	            DriveStatus.start = 1;
 	        } else if (BUTTONCOM.button == 1){
 	            DriveStatus.start = 0;
 	        }

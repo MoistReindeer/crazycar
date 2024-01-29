@@ -10,6 +10,7 @@ typedef struct {
         unsigned char uturn; // 0 if not, 1 if U-Turn
         unsigned char circle; // Used for kreisel, 1 if detected, 0 if not
         unsigned int count;
+        short align; // Value to align the car in the straight
     } Steer;
     struct {
         short curr;
@@ -20,7 +21,14 @@ typedef struct {
     } Drive;
     struct {
         unsigned short value;
+        unsigned short maxSpd;
+        unsigned short minSpd;
     } Speed;
+    struct {
+        unsigned short r;
+        unsigned short l;
+        unsigned short round;
+    } Count;
     char start;
     char requested;
     unsigned short refreshCount;
