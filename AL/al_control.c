@@ -38,7 +38,7 @@ void AL_Param_Init() {
     DriveStatus.refreshCount = 0;
     DriveStatus.start = 0;
     DriveStatus.Speed.minSpd = 33;
-    DriveStatus.Speed.maxSpd = 55;
+    DriveStatus.Speed.maxSpd = 54;
     DriveStatus.Steer.count = 0;
     DriveStatus.Count.l = 0;
     DriveStatus.Count.r = 0;
@@ -126,16 +126,16 @@ void AL_Fetch_Direction() {
 
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
-            if (diff < -DEAD_ZONE && sum > 900) {
+            if (diff < -DEAD_ZONE && ConvertedData.Distance.left > 800) {
                 DriveStatus.Steer.curr = LEFT;
-            } else if (diff > DEAD_ZONE && sum > 900) {
+            } else if (diff > DEAD_ZONE && ConvertedData.Distance.right > 800) {
                 DriveStatus.Steer.curr = RIGHT;
             } else {
                 steeringValue = parameters.Steer.y;
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front - 150) {
+            if (sum <= ConvertedData.Distance.front + 150) {
                 DriveStatus.Count.l += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
@@ -145,7 +145,7 @@ void AL_Fetch_Direction() {
             /*if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
                 DriveStatus.Steer.curr = FORWARD;
                 DriveStatus.Steer.circle = 1;
-            } else*/ if (sum <= ConvertedData.Distance.front - 150) {
+            } else*/ if (sum <= ConvertedData.Distance.front + 150) {
                 DriveStatus.Count.r += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
