@@ -17,11 +17,11 @@ short steeringValue = 0;
 short curveDelay = 0;
 
 void AL_Param_Init() {
-    parameters.Steer.kp = 0.14;
+    parameters.Steer.kp = 0.09;
     parameters.Steer.ki = 0;
     parameters.Steer.kd = 0.05;
     parameters.Steer.esum = 0;
-    parameters.Steer.ta = 0.008;
+    parameters.Steer.ta = 0.1;
     parameters.Steer.satLow = -60;
     parameters.Steer.satHigh = 60;
 
@@ -126,12 +126,12 @@ void AL_Fetch_Direction() {
 
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
-            if (diff < -DEAD_ZONE) {
+            if (diff < -DEAD_ZONE && sum > 900) {
                 DriveStatus.Steer.curr = LEFT;
-            } else if (diff > DEAD_ZONE) {
+            } else if (diff > DEAD_ZONE && sum > 900) {
                 DriveStatus.Steer.curr = RIGHT;
             } else {
-                steeringValue = parameters.Steer.y >> 1;
+                steeringValue = parameters.Steer.y;
             }
             break;
         case LEFT:
