@@ -2,6 +2,7 @@
 #define _AL_CONTROL_H_
 
 enum States{FORWARD, LEFT, RIGHT, CORRECTION, START, STOP};
+enum Curves{CV1, CV2, CV3, CV4, CV5, CV6, CV7, CV8, CV9};
 
 typedef struct {
     struct {
@@ -10,6 +11,7 @@ typedef struct {
         unsigned char uturn; // 0 if not, 1 if U-Turn
         unsigned char circle; // Used for kreisel, 1 if detected, 0 if not
         unsigned int count;
+        short curve; // Currend driven curve
         short align; // Value to align the car in the straight
     } Steer;
     struct {

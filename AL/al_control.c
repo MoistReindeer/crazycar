@@ -7,14 +7,16 @@
 #include <HAL/hal_adc12.h>
 
 #define DEAD_ZONE 425
-#define MINSPD 37
-#define MAXSPD 56
+#define MINSPD 33
+#define MAXSPD 54
+#define LOCK_MAX 45
 
 extern ConversionData ConvertedData;
 extern ADC12Com ADC12Data;
 DriveStatus_t DriveStatus;
 PIParams_t parameters;
 
+unsigned short lockCnt = 0;
 short steeringValue = 0;
 short curveDelay = 0;
 
@@ -129,43 +131,117 @@ void AL_Fetch_Direction() {
     switch (DriveStatus.Steer.curr) {
         case FORWARD:
             if (diff < -DEAD_ZONE && ConvertedData.Distance.left > 800) {
+                if (lockCnt < LOCK_MAX && DriveStatus.Count.l > 0)
+                    DriveStatus.Count.l -= 1;
                 DriveStatus.Steer.curr = LEFT;
+                DriveStatus.Count.l += 1;
+                lockCnt = 0;
             } else if (diff > DEAD_ZONE && ConvertedData.Distance.right > 800) {
+                if (lockCnt < LOCK_MAX && DriveStatus.Count.r > 0)
+                    DriveStatus.Count.r -= 1;
                 DriveStatus.Steer.curr = RIGHT;
+                DriveStatus.Count.r += 1;
+                lockCnt = 0;
             } else {
                 steeringValue = parameters.Steer.y;
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front + 150 && diff > -DEAD_ZONE) {
-                DriveStatus.Count.l += 1;
+            if (sum <= ConvertedData.Distance.front + 250 && diff > -DEAD_ZONE) {
                 DriveStatus.Steer.curr = FORWARD;
-            } else
+            } else {
+                lockCnt += 1;
                 steeringValue = -100;
+            }
             break;
         case RIGHT:
             /*if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
                 DriveStatus.Steer.curr = FORWARD;
                 DriveStatus.Steer.circle = 1;
-            } else*/ if (sum <= ConvertedData.Distance.front + 150 && diff < DEAD_ZONE) {
-                DriveStatus.Count.r += 1;
+            } else*/ if (sum <= ConvertedData.Distance.front + 250 && diff < DEAD_ZONE) {
                 DriveStatus.Steer.curr = FORWARD;
-            } else
+            } else {
+                lockCnt += 1;
                 steeringValue = 100;
+            }
             break;
         case CORRECTION:
             steeringValue = parameters.Steer.y >> 1;
     }
 
     // Set Speed based on curve
-    if (DriveStatus.Count.l == 2 && DriveStatus.Count.r == 0) {
+    if (DriveStatus.Count.l == 1 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV1;
+    } else if (DriveStatus.Count.l == 2 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV2;
+    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV3;
+    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 1 && DriveStatus.Steer.curr == RIGHT) {
+        DriveStatus.Steer.curve = CV4;
+    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == RIGHT) {
+        DriveStatus.Steer.curve = CV5;
+    } else if (DriveStatus.Count.l == 4 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV6;
+    } else if (DriveStatus.Count.l == 5 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV7;
+    } else if (DriveStatus.Count.l == 6 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
+        DriveStatus.Steer.curve = CV8;
+    } else {
+        DriveStatus.Steer.curve = -1;
+    }
+
+    switch (DriveStatus.Steer.curve) {
+        case CV1:
+            DriveStatus.Steer.align = 220;
+            break;
+        case CV2:
+            break;
+        case CV3:
+            DriveStatus.Steer.align = -190;
+            DriveStatus.Speed.minSpd = MINSPD - 6;
+            break;
+        case CV4:
+            LCD_BACKLIGHT_ON;
+            DriveStatus.Speed.minSpd = MINSPD + 15;
+            DriveStatus.Speed.maxSpd = MAXSPD;
+            break;
+        case CV5:
+            DriveStatus.Steer.align = 0;
+            DriveStatus.Speed.minSpd = MINSPD;
+            // LCD_BACKLIGHT_ON;
+            break;
+        case CV6:
+            break;
+        case CV7:
+            break;
+        case CV8:
+            DriveStatus.Speed.maxSpd = 100;
+            break;
+        /*default:
+            DriveStatus.Speed.minSpd = MINSPD;
+            DriveStatus.Speed.maxSpd = MAXSPD;
+            break;*/
+    }
+
+    /*
+    if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0) {
+        DriveStatus.Steer.curve = CV3;
+
+    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 1) {
+        DriveStatus.Steer.curve = CV4;
         LCD_BACKLIGHT_ON;
-        DriveStatus.Speed.minSpd = 35;
-    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0) {
-        DriveStatus.Speed.minSpd = 47;
+        DriveStatus.Speed.minSpd = MINSPD + 15;
+        DriveStatus.Speed.maxSpd = MAXSPD + 8;
+    } else if (DriveStatus.Count.l == 4 && DriveStatus.Count.r == 2) {
+        DriveStatus.Steer.curve = CV5;
+        LCD_BACKLIGHT_ON;
+    } else if (DriveStatus.Count.l == 6 && DriveStatus.Count.r == 2) {
+        DriveStatus.Steer.curve = CV8;
+        DriveStatus.Speed.maxSpd = 100;
     } else {
         DriveStatus.Speed.minSpd = MINSPD;
-    }
+        DriveStatus.Speed.maxSpd = MAXSPD;
+    }*/
 /*
     if (DriveStatus.Count.l == 2 && DriveStatus.Count.r <= 1) {
         DriveStatus.Speed.maxSpd = 50;
@@ -206,7 +282,7 @@ void AL_Fetch_Direction() {
         //Driver_LCD_WriteText("circle", 7, 5, 0);
         //Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 49);
         Driver_LCD_WriteText("cnt", 3, 6, 0);
-        Driver_LCD_WriteUInt(DriveStatus.Steer.count, 6, 49);
+        Driver_LCD_WriteUInt(lockCnt, 6, 49);
         Driver_LCD_WriteText("rc", 2, 4, 0);
         Driver_LCD_WriteUInt(DriveStatus.Count.r, 4, 49);
         Driver_LCD_WriteText("lc", 2, 5, 0);
@@ -215,10 +291,13 @@ void AL_Fetch_Direction() {
         Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
     }
 
-    if (ConvertedData.velocity_dd > 1175) {
+    if (ConvertedData.velocity_dd > 2000) {
         LCD_BACKLIGHT_OFF;
         DriveStatus.Count.l = 0;
         DriveStatus.Count.r = 0;
+        Driver_SetThrottle(-50);
+        DriveStatus.Speed.minSpd = MINSPD;
+        DriveStatus.Speed.maxSpd = MAXSPD;
     }
     return;
 }
