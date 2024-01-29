@@ -8,6 +8,8 @@ extern const unsigned short ir_front[TABLE_SIZE];
 extern const unsigned short ir_right[TABLE_SIZE];
 extern const unsigned short ir_left[TABLE_SIZE];
 
+extern const unsigned short front_speed_tbl[212];
+
 typedef struct {
     struct {
         unsigned short front;

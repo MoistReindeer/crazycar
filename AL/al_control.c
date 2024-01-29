@@ -17,9 +17,9 @@ short steeringValue = 0;
 short curveDelay = 0;
 
 void AL_Param_Init() {
-    parameters.Steer.kp = 0.20;
-    parameters.Steer.ki = 0.03;
-    parameters.Steer.kd = 0.12;
+    parameters.Steer.kp = 0.25;
+    parameters.Steer.ki = 0.04;
+    parameters.Steer.kd = 0.02;
     parameters.Steer.esum = 0;
     parameters.Steer.ta = 0.1;
     parameters.Steer.satLow = -60;
@@ -35,6 +35,7 @@ void AL_Param_Init() {
 }
 
 void AL_Control_Drive() {
+    /*
     parameters.Drive.e = (ConvertedData.Distance.front - DriveStatus.Drive.front_old + ConvertedData.Distance.left - DriveStatus.Drive.left_old + ConvertedData.Distance.right - DriveStatus.Drive.right_old)/3;
     if ((parameters.Drive.y > parameters.Drive.satLow) && (parameters.Drive.y < parameters.Drive.satHigh)) {
         parameters.Drive.esum += parameters.Drive.e;
@@ -53,7 +54,26 @@ void AL_Control_Drive() {
     Driver_SetThrottle(parameters.Drive.y);
     DriveStatus.Drive.front_old = ConvertedData.Distance.front;
     DriveStatus.Drive.left_old = ConvertedData.Distance.left;
-    DriveStatus.Drive.right_old = ConvertedData.Distance.right;
+    DriveStatus.Drive.right_old = ConvertedData.Distance.right;*/
+    unsigned short speed = 0;
+    switch (DriveStatus.Steer.curr) {
+            case FORWARD:
+                speed = front_speed_tbl[ConvertedData.Distance.front >> 3];
+                break;
+            case LEFT:
+                speed = front_speed_tbl[((ConvertedData.Distance.left + ConvertedData.Distance.front) >> 2) >> 3];
+                break;
+            case RIGHT:
+                speed = front_speed_tbl[((ConvertedData.Distance.right + ConvertedData.Distance.front) >> 2) >> 3];
+                break;
+    }
+    if (speed > 65)
+        speed = 65;
+    else if (speed < 30)
+        speed = 40;
+    if (ConvertedData.Distance.front <= 100)
+        speed = 0;
+    Driver_SetThrottle(speed);
 }
 
 void AL_Average_Sensors() {
@@ -68,6 +88,7 @@ void AL_Average_Sensors() {
     ConvertedData.Distance.left = ADC12Data.SensorLeft; // >> 3;
     ConvertedData.Distance.right = ADC12Data.SensorRight; // >> 3;
     ConvertedData.Distance.front = ADC12Data.SensorFront; // >> 3;
+
 }
 
 void AL_Control_Steer() {
@@ -119,14 +140,14 @@ void AL_Fetch_Direction() {
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front && diff > -DEAD_ZONE) {
+            if (sum <= ConvertedData.Distance.front || diff > -DEAD_ZONE) {
                 DriveStatus.Steer.count += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
                 steeringValue = -100;
             break;
         case RIGHT:
-            if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
+            if (DriveStatus.Steer.count == 2 || ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
                 DriveStatus.Steer.curr = FORWARD;
                 DriveStatus.Steer.circle = 1;
             } else if (sum <= ConvertedData.Distance.front && diff < DEAD_ZONE) {
@@ -136,10 +157,9 @@ void AL_Fetch_Direction() {
                 steeringValue = 100;
             break;
         case CORRECTION:
-            steeringValue = parameters.Steer.y >> 1;
+            steeringValue = parameters.Steer.y;
     }
     Driver_SetSteering(steeringValue);
-    AL_Control_Drive();
     if (DriveStatus.refreshCount >= 120) {
         Driver_LCD_WriteText("circle", 7, 5, 0);
         Driver_LCD_WriteUInt(DriveStatus.Steer.circle, 5, 49);

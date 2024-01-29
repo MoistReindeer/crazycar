@@ -31,6 +31,7 @@ void main(void)
 
     // Driver_LCD_Test();
     DriveStatus.refreshCount = 0;
+    DriveStatus.start = 0;
 
 	while (1)
 	{
@@ -46,7 +47,7 @@ void main(void)
                 Driver_LCD_WriteUInt(ConvertedData.Distance.left, 1, 8);
                 Driver_LCD_WriteText("r", 1, 2, 0);
                 Driver_LCD_WriteUInt(ConvertedData.Distance.right, 2, 8);
-                Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[0], 7, 0);
+                Driver_LCD_WriteUInt(ADC12Data.ADCBuffer[3], 7, 0);
                 DriveStatus.refreshCount = 0;
             } else {
                 DriveStatus.refreshCount += 1;
