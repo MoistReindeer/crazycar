@@ -135,7 +135,7 @@ void AL_Fetch_Direction() {
             }
             break;
         case LEFT:
-            if (sum <= ConvertedData.Distance.front + 150) {
+            if (sum <= ConvertedData.Distance.front + 150 && diff > -DEAD_ZONE) {
                 DriveStatus.Count.l += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
@@ -145,7 +145,7 @@ void AL_Fetch_Direction() {
             /*if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
                 DriveStatus.Steer.curr = FORWARD;
                 DriveStatus.Steer.circle = 1;
-            } else*/ if (sum <= ConvertedData.Distance.front + 150) {
+            } else*/ if (sum <= ConvertedData.Distance.front + 150 && diff < DEAD_ZONE) {
                 DriveStatus.Count.r += 1;
                 DriveStatus.Steer.curr = FORWARD;
             } else
@@ -203,9 +203,13 @@ void AL_Fetch_Direction() {
         /*Driver_LCD_WriteText("stat", 4, 3, 0);
         Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
     }
-    if (DriveStatus.Count.l + DriveStatus.Count.r >= 9) {
+
+    if (ConvertedData.velocity_dd > 1350) {
+        LCD_BACKLIGHT_ON;
         DriveStatus.Count.l = 0;
         DriveStatus.Count.r = 0;
+    } else {
+        LCD_BACKLIGHT_OFF;
     }
     return;
 }

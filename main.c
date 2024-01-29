@@ -54,6 +54,7 @@ void main(void)
 	    }
 	    if (BUTTONCOM.active == 1) {
 	        if (BUTTONCOM.button == 0) {
+	            LCD_BACKLIGHT_OFF;
 	            AL_Param_Init();
 	            DriveStatus.start = 1;
 	        } else if (BUTTONCOM.button == 1){
