@@ -7,6 +7,8 @@
 #include <HAL/hal_adc12.h>
 
 #define DEAD_ZONE 425
+#define MINSPD 37
+#define MAXSPD 56
 
 extern ConversionData ConvertedData;
 extern ADC12Com ADC12Data;
@@ -37,8 +39,8 @@ void AL_Param_Init() {
     DriveStatus.Steer.curr = FORWARD;
     DriveStatus.refreshCount = 0;
     DriveStatus.start = 0;
-    DriveStatus.Speed.minSpd = 33;
-    DriveStatus.Speed.maxSpd = 54;
+    DriveStatus.Speed.minSpd = MINSPD;
+    DriveStatus.Speed.maxSpd = 56;
     DriveStatus.Steer.count = 0;
     DriveStatus.Count.l = 0;
     DriveStatus.Count.r = 0;
@@ -156,6 +158,14 @@ void AL_Fetch_Direction() {
     }
 
     // Set Speed based on curve
+    if (DriveStatus.Count.l == 2 && DriveStatus.Count.r == 0) {
+        LCD_BACKLIGHT_ON;
+        DriveStatus.Speed.minSpd = 35;
+    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0) {
+        DriveStatus.Speed.minSpd = 47;
+    } else {
+        DriveStatus.Speed.minSpd = MINSPD;
+    }
 /*
     if (DriveStatus.Count.l == 2 && DriveStatus.Count.r <= 1) {
         DriveStatus.Speed.maxSpd = 50;
@@ -173,11 +183,12 @@ void AL_Fetch_Direction() {
         DriveStatus.Speed.maxSpd = 54;
     }*/
 
+    /*
     if (DriveStatus.Count.l >= 2 && DriveStatus.Count.l <= 3)
         DriveStatus.Steer.align = 150;
     else if (DriveStatus.Count.r >= 2)
         DriveStatus.Steer.align = -150;
-
+    */
 
     /*if (ConvertedData.velocity_dd >= 3500) {
         DriveStatus.Speed.minSpd = 32;
@@ -204,12 +215,10 @@ void AL_Fetch_Direction() {
         Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
     }
 
-    if (ConvertedData.velocity_dd > 1350) {
-        LCD_BACKLIGHT_ON;
+    if (ConvertedData.velocity_dd > 1175) {
+        LCD_BACKLIGHT_OFF;
         DriveStatus.Count.l = 0;
         DriveStatus.Count.r = 0;
-    } else {
-        LCD_BACKLIGHT_OFF;
     }
     return;
 }
