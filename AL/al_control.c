@@ -34,7 +34,7 @@ void AL_Param_Init() {
     parameters.Drive.satHigh = 60;
 
     // Set default parameters
-    DriveStatus.Steer.curr = FOWARD;
+    DriveStatus.Steer.curr = FORWARD;
     DriveStatus.refreshCount = 0;
     DriveStatus.start = 0;
 }
@@ -165,7 +165,7 @@ void AL_Fetch_Direction() {
                 steeringValue = 100;
             break;
         case CORRECTION:
-            steeringValue = parameters.Steer.y;
+            steeringValue = parameters.Steer.y >> 1;
     }
     Driver_SetSteering(steeringValue);
     if (DriveStatus.refreshCount >= 120) {
