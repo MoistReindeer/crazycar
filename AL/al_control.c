@@ -55,28 +55,12 @@ void AL_Control_Drive() {
             speed = front_speed_tbl[ConvertedData.Distance.front >> 3];
             break;
         case LEFT:
-            speed = front_speed_tbl[((ConvertedData.Distance.left + ConvertedData.Distance.front) >> 2) >> 3];
+            speed = front_speed_tbl[((ConvertedData.Distance.left + ConvertedData.Distance.front) >> 1) >> 3];
             break;
         case RIGHT:
-            speed = front_speed_tbl[((ConvertedData.Distance.right + ConvertedData.Distance.front) >> 2) >> 3];
+            speed = front_speed_tbl[((ConvertedData.Distance.right + ConvertedData.Distance.front) >> 1) >> 3];
             break;
     }
-    /*parameters.Drive.e = speed - DriveStatus.Speed.value;
-    if ((parameters.Drive.y > parameters.Drive.satLow) && (parameters.Drive.y < parameters.Drive.satHigh)) {
-        parameters.Drive.esum += parameters.Drive.e;
-    }
-    parameters.Drive.y = parameters.Drive.kp * parameters.Drive.e;
-    parameters.Drive.y += parameters.Drive.ki * parameters.Drive.ta * parameters.Drive.esum;
-    parameters.Drive.y += parameters.Drive.kd * (parameters.Drive.e - parameters.Drive.e_old) / parameters.Drive.ta;
-    parameters.Drive.e_old = parameters.Drive.e;
-
-    if (parameters.Drive.y < parameters.Drive.satLow) {
-        parameters.Drive.y = parameters.Drive.satLow;
-    } else if (parameters.Drive.y > parameters.Drive.satHigh) {
-        parameters.Drive.y = parameters.Drive.satHigh;
-    }
-
-    //Driver_SetThrottle(parameters.Drive.y);*/
 
     if (speed > DriveStatus.Speed.maxSpd)
         speed = DriveStatus.Speed.maxSpd;
@@ -93,7 +77,7 @@ void AL_Control_Drive() {
 void AL_Average_Sensors() {
     unsigned int lbuff = 0, rbuff = 0, fbuff = 0, i;
     for (i = 7; i == 0; i--) {
-        //while (ADC12Data.Status.B.ADCrdy != 1);
+        while (ADC12Data.Status.B.ADCrdy != 1);
         lbuff += ADC12Data.SensorLeft;
         rbuff += ADC12Data.SensorRight;
         fbuff += ADC12Data.SensorFront;
@@ -106,7 +90,7 @@ void AL_Average_Sensors() {
 }
 
 void AL_Control_Steer() {
-    parameters.Steer.e = ConvertedData.Distance.right - ConvertedData.Distance.left + DriveStatus.Steer.align; // +400 Aligns the car with the right wall
+    parameters.Steer.e = (ConvertedData.Distance.right - ConvertedData.Distance.left) >> 4; // +400 Aligns the car with the right wall; division by 17 (16) for 0-100% scaling
     if ((parameters.Steer.y > parameters.Steer.satLow) && (parameters.Steer.y < parameters.Steer.satHigh)) {
         parameters.Steer.esum += parameters.Steer.e;
     }
@@ -155,125 +139,15 @@ void AL_Fetch_Direction() {
             }
             break;
         case RIGHT:
-            /*if (DriveStatus.Steer.count == 2 && ConvertedData.Distance.front >= 1000 && ConvertedData.Distance.front <= 1200) {
-                DriveStatus.Steer.curr = FORWARD;
-                DriveStatus.Steer.circle = 1;
-            } else*/ if (sum <= ConvertedData.Distance.front + 250 && diff < DEAD_ZONE) {
+            if (sum <= ConvertedData.Distance.front + 250 && diff < DEAD_ZONE) {
                 DriveStatus.Steer.curr = FORWARD;
             } else {
                 lockCnt += 1;
                 steeringValue = 100;
             }
             break;
-        case CORRECTION:
-            steeringValue = parameters.Steer.y >> 1;
     }
 
-    // Set Speed based on curve
-    if (DriveStatus.Count.l == 1 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV1;
-    } else if (DriveStatus.Count.l == 2 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV2;
-    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV3;
-    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 1 && DriveStatus.Steer.curr == RIGHT) {
-        DriveStatus.Steer.curve = CV4;
-    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == RIGHT) {
-        DriveStatus.Steer.curve = CV5;
-    } else if (DriveStatus.Count.l == 4 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV6;
-    } else if (DriveStatus.Count.l == 5 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV7;
-    } else if (DriveStatus.Count.l == 6 && DriveStatus.Count.r == 2 && DriveStatus.Steer.curr == LEFT) {
-        DriveStatus.Steer.curve = CV8;
-    } else {
-        DriveStatus.Steer.curve = -1;
-    }
-
-    switch (DriveStatus.Steer.curve) {
-        case CV1:
-            DriveStatus.Steer.align = 220;
-            break;
-        case CV2:
-            break;
-        case CV3:
-            DriveStatus.Steer.align = -190;
-            DriveStatus.Speed.minSpd = MINSPD - 6;
-            break;
-        case CV4:
-            LCD_BACKLIGHT_ON;
-            DriveStatus.Speed.minSpd = MINSPD + 15;
-            DriveStatus.Speed.maxSpd = MAXSPD;
-            break;
-        case CV5:
-            DriveStatus.Steer.align = 0;
-            DriveStatus.Speed.minSpd = MINSPD;
-            // LCD_BACKLIGHT_ON;
-            break;
-        case CV6:
-            break;
-        case CV7:
-            break;
-        case CV8:
-            DriveStatus.Speed.maxSpd = 100;
-            break;
-        /*default:
-            DriveStatus.Speed.minSpd = MINSPD;
-            DriveStatus.Speed.maxSpd = MAXSPD;
-            break;*/
-    }
-
-    /*
-    if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 0) {
-        DriveStatus.Steer.curve = CV3;
-
-    } else if (DriveStatus.Count.l == 3 && DriveStatus.Count.r == 1) {
-        DriveStatus.Steer.curve = CV4;
-        LCD_BACKLIGHT_ON;
-        DriveStatus.Speed.minSpd = MINSPD + 15;
-        DriveStatus.Speed.maxSpd = MAXSPD + 8;
-    } else if (DriveStatus.Count.l == 4 && DriveStatus.Count.r == 2) {
-        DriveStatus.Steer.curve = CV5;
-        LCD_BACKLIGHT_ON;
-    } else if (DriveStatus.Count.l == 6 && DriveStatus.Count.r == 2) {
-        DriveStatus.Steer.curve = CV8;
-        DriveStatus.Speed.maxSpd = 100;
-    } else {
-        DriveStatus.Speed.minSpd = MINSPD;
-        DriveStatus.Speed.maxSpd = MAXSPD;
-    }*/
-/*
-    if (DriveStatus.Count.l == 2 && DriveStatus.Count.r <= 1) {
-        DriveStatus.Speed.maxSpd = 50;
-        DriveStatus.Speed.minSpd = 32;
-        DriveStatus.Count.r = 0;
-    } else if (DriveStatus.Count.r == 0 && DriveStatus.Count.l > 3) {
-        DriveStatus.Speed.maxSpd = 55;
-        DriveStatus.Speed.minSpd = 40;
-        DriveStatus.Count.l = 3;
-    } else if (DriveStatus.Count.r == 1 && DriveStatus.Steer.curr == RIGHT) {
-        DriveStatus.Speed.maxSpd = 40;
-        DriveStatus.Speed.minSpd = 33;
-    } else {
-        DriveStatus.Speed.minSpd = 33;
-        DriveStatus.Speed.maxSpd = 54;
-    }*/
-
-    /*
-    if (DriveStatus.Count.l >= 2 && DriveStatus.Count.l <= 3)
-        DriveStatus.Steer.align = 150;
-    else if (DriveStatus.Count.r >= 2)
-        DriveStatus.Steer.align = -150;
-    */
-
-    /*if (ConvertedData.velocity_dd >= 3500) {
-        DriveStatus.Speed.minSpd = 32;
-        DriveStatus.Speed.maxSpd = 50;
-    }*/
-
-    // Control Drive
-    if (DriveStatus.start != 0)
-        AL_Control_Drive();
     // Set Steering
     Driver_SetSteering(steeringValue);
 
@@ -289,15 +163,6 @@ void AL_Fetch_Direction() {
         Driver_LCD_WriteUInt(DriveStatus.Count.l, 5, 49);
         /*Driver_LCD_WriteText("stat", 4, 3, 0);
         Driver_LCD_WriteUInt(DriveStatus.Drive.curr, 3, 49);*/
-    }
-
-    if (ConvertedData.velocity_dd > 2000) {
-        LCD_BACKLIGHT_OFF;
-        DriveStatus.Count.l = 0;
-        DriveStatus.Count.r = 0;
-        Driver_SetThrottle(-50);
-        DriveStatus.Speed.minSpd = MINSPD;
-        DriveStatus.Speed.maxSpd = MAXSPD;
     }
     return;
 }
